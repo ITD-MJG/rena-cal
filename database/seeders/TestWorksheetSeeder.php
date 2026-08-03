@@ -2,27 +2,51 @@
 
 namespace Database\Seeders;
 
+use App\Models\Brand;
 use App\Models\CalibrationElectricalSafetyTest;
 use App\Models\CalibrationInstrument;
 use App\Models\CalibrationPerformanceMeasurement;
 use App\Models\CalibrationPhysicalInspection;
 use App\Models\CalibrationWorksheet;
+use App\Models\Customer;
 use App\Models\Device;
+use App\Models\DeviceName;
 use App\Models\Service;
+use App\Models\Type;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class TestWorksheetSeeder extends Seeder
 {
     public function run(): void
     {
-        $device = Device::first();
         $service = Service::where('name', 'Instalasi sterilisasi pusat')->first();
 
-        if (! $device || ! $service) {
-            $this->command->warn('No device or service found. Seed those first.');
+        if (! $service) {
+            $this->command->warn('No service found. Seed services first.');
 
             return;
         }
+
+        $device = Device::firstOrCreate(
+            ['device_number' => 'RENA-00001'],
+            [
+                'deviceId' => Str::uuid(),
+                'serial_number' => 'A250705-510',
+                'brand_id' => Brand::firstOrCreate(['name' => 'LOKAL'], ['slug' => 'lokal'])->id,
+                'type_id' => Type::firstOrCreate(
+                    ['name' => 'YA28X6T/8', 'slug' => 'ya28x6t-8'],
+                    ['brand_id' => Brand::firstOrCreate(['name' => 'LOKAL'], ['slug' => 'lokal'])->id]
+                )->id,
+                'device_name_id' => DeviceName::firstOrCreate(['name' => 'AUTOCLAVE', 'slug' => 'autoclave'])->id,
+                'customer_id' => Customer::firstOrCreate(
+                    ['name' => 'Klinik Pratama Ocean Dental Radio Dalam', 'slug' => 'klinik-pratama-ocean-dental-radio-dalam']
+                )->id,
+                'calibration_date' => '2026-07-02',
+                'next_calibration_date' => '2027-07-02',
+                'result' => 'Tidak Laik Pakai',
+            ]
+        );
 
         $worksheet = CalibrationWorksheet::create([
             'device_id' => $device->id,
