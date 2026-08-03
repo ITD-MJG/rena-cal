@@ -1,0 +1,4 @@
+<div style="position:absolute; bottom:10mm; left:20mm; right:20mm; text-align:center;">
+    <div class="page-num">Halaman {{ $pageNumber ?? 1 }} dari {{ $totalPages ?? 3 }}</div>
+    <div style="font-size:7pt; color:#000; margin-top:3mm;">Dilarang memperbanyak dan atau mempublikasikan sebagian isi Sertifikat ini tanpa izin PT Rena Kalibrindo Selaras</div>
+</div>

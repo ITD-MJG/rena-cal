@@ -6,7 +6,7 @@
     <style>
         * { margin: 0; padding: 0; }
         body { font-family: Arial, Helvetica, sans-serif; font-size: 9pt; color: #000; }
-        .page { width: 170mm; padding: 10mm 20mm; page-break-after: always; }
+        \.page { width: 170mm; padding: 10mm 20mm; page-break-after: always; position: relative; }
         .page:last-child { page-break-after: avoid; }
 
         table { border-collapse: collapse; width: 100%; }
