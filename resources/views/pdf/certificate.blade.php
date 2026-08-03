@@ -61,21 +61,7 @@
 *--}}
 <div class="page">
 
-    {{-- Header: Logo + Company --}}
-    <table style="margin-bottom: 5px;">
-        <tr>
-            <td style="border:none; width:80px; vertical-align:middle;">
-                <div style="border: 2px solid #c00; padding: 4px; text-align:center; font-size: 16pt; font-weight:bold; color:#003366;">RENA</div>
-            </td>
-            <td style="border:none; text-align:center; vertical-align:middle;">
-                <div style="font-size: 14pt; font-weight:bold; color:#000;">PT RENA KALIBRINDO SELARAS</div>
-                <div style="font-size: 8pt; color:#000;">Jl. Pangeran Antasari No.45, RT.07 RW.07, Cipete Selatan,</div>
-                <div style="font-size: 8pt; color:#000;">Kecamatan Cilandak Jakarta Selatan — 12150</div>
-                <div style="font-size: 8pt; color:#000;">Email : admin@rena.co.id</div>
-            </td>
-        </tr>
-    </table>
-    <hr style="border: 1.5px solid #000; margin-bottom: 8px;">
+    @include('pdf.partials.header')
 
     {{-- Title --}}
     <div style="text-align:center; font-size: 16pt; font-weight:bold; margin-bottom: 15px;">SERTIFIKAT KALIBRASI</div>
@@ -181,9 +167,7 @@
         </tr>
     </table>
 
-    {{-- Footer --}}
-    <div class="page-num">Halaman 1 dari 3</div>
-    <div style="text-align:center; font-size:7pt; color:#666; margin-top:3mm;">Dilarang memperbanyak dan atau mempublikasikan sebagian isi Sertifikat ini tanpa izin PT Rena Kalibrindo Selaras</div>
+    @include('pdf.partials.footer', ['pageNumber' => 1])
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════════ --}}
@@ -191,13 +175,7 @@
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 <div class="page">
 
-    {{-- Header --}}
-    <div class="header-bar">
-        <table><tr>
-            <td style="border:none; color:#fff; font-weight:bold; font-size:9pt;">PT RENA KALIBRINDO SELARAS</td>
-            <td style="border:none; color:#fff; font-size:7pt; text-align:right;">Jl. Pangeran Antasari No.4, Cipete Selatan, Jakarta Selatan 12150</td>
-        </tr></table>
-    </div>
+    @include('pdf.partials.header')
 
     {{-- 1. Identitas Alat --}}
     <div class="section-title">1. IDENTITAS ALAT</div>
@@ -327,7 +305,7 @@
         </tbody>
     </table>
 
-    <div class="page-num">Halaman 2 dari 3</div>
+    @include('pdf.partials.footer', ['pageNumber' => 2])
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════════ --}}
@@ -335,13 +313,7 @@
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 <div class="page">
 
-    {{-- Header --}}
-    <div class="header-bar">
-        <table><tr>
-            <td style="border:none; color:#fff; font-weight:bold; font-size:9pt;">PT RENA KALIBRINDO SELARAS</td>
-            <td style="border:none; color:#fff; font-size:7pt; text-align:right;">Jl. Pangeran Antasari No.4, Cipete Selatan, Jakarta Selatan 12150</td>
-        </tr></table>
-    </div>
+    @include('pdf.partials.header')
 
     {{-- 7. Hasil Kalibrasi --}}
     <div class="section-title">7. HASIL KALIBRASI</div>
@@ -411,7 +383,7 @@
         <tr><td style="border:none; vertical-align:top;">4.</td><td style="border:none; font-size:8pt;">Nilai sebenarnya adalah nilai penunjukan alat ditambah dengan nilai koreksi</td></tr>
     </table>
 
-    <div class="page-num">Halaman 3 dari 3</div>
+    @include('pdf.partials.footer', ['pageNumber' => 3])
 </div>
 
 </body>
