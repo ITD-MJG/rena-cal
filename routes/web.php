@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Public\DeviceDetail;
+use App\Models\CalibrationWorksheet;
 use App\Models\Device;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -73,3 +74,23 @@ Route::get('/qr-print', function () {
 
     return $pdf->stream($filename);
 })->name('devices.qr-print');
+
+// Test certificate route
+Route::get('/test-certificate/{worksheet}', function ($worksheetId) {
+    $worksheet = CalibrationWorksheet::with([
+        'device.deviceName',
+        'device.brand',
+        'device.type',
+        'device.customer',
+        'service',
+        'instruments',
+        'physicalInspections',
+        'electricalSafetyTests',
+        'performanceMeasurements',
+    ])->findOrFail($worksheetId);
+
+    $pdf = Pdf::loadView('pdf.certificate', ['worksheet' => $worksheet])
+        ->setPaper('a4', 'portrait');
+
+    return $pdf->stream('certificate-test.pdf');
+});
