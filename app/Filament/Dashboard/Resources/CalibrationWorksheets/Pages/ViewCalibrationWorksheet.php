@@ -3,6 +3,7 @@
 namespace App\Filament\Dashboard\Resources\CalibrationWorksheets\Pages;
 
 use App\Filament\Dashboard\Resources\CalibrationWorksheets\CalibrationWorksheetResource;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 
@@ -14,6 +15,37 @@ class ViewCalibrationWorksheet extends ViewRecord
     {
         return [
             Actions\EditAction::make(),
+            Actions\Action::make('generateCertificate')
+                ->label('Generate Sertifikat')
+                ->icon('heroicon-m-document-arrow-down')
+                ->color('success')
+                ->action(fn () => $this->generateCertificate()),
         ];
+    }
+
+    protected function generateCertificate(): void
+    {
+        $worksheet = $this->record->load([
+            'device.deviceName',
+            'device.brand',
+            'device.type',
+            'device.customer',
+            'service',
+            'instruments',
+            'physicalInspections',
+            'electricalSafetyTests',
+            'performanceMeasurements',
+        ]);
+
+        $pdf = Pdf::loadView('pdf.certificate', ['worksheet' => $worksheet])
+            ->setPaper('a4', 'portrait');
+
+        $filename = 'Sertifikat_Kalibrasi_'.$worksheet->device->device_number.'.pdf';
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, $filename, [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 }
