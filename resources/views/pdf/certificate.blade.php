@@ -50,8 +50,7 @@
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 {{-- PAGE 1: COVER --}}
 {{-- ═══════════════════════════════════════════════════════════════ --}}
-@*
-Page 1 layout based on PDF reference:
+{{-- Page 1 layout based on PDF reference:
 - Header: logo left, company name/address center-right
 - Title: SERTIFIKAT KALIBRASI
 - Doc numbers on left
@@ -59,7 +58,7 @@ Page 1 layout based on PDF reference:
 - Dates section
 - Signatures with QR placeholder
 - Footer disclaimer
-*@
+*--}}
 <div class="page">
 
     {{-- Header: Logo + Company --}}
