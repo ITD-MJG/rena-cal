@@ -150,14 +150,17 @@
     {{-- Signatures + QR --}}
     <table style="margin-top: 30px;">
         <tr>
-            <td style="border:none; width:50%; text-align:right; padding-right:15px; vertical-align:top;">
+            <td style="border:none; width:50%;"></td>
+            <td style="border:none; width:50%; text-align:center;">
                 <div style="margin-bottom: 5px;">Jakarta, {{ $worksheet->calibration_date?->addDay()->format('d M Y') ?? '—' }}</div>
-                <div style="font-weight:bold; text-decoration:underline; margin-bottom: 5px;">Penanggung Jawab</div>
-                <div style="font-size:8pt; font-style:italic; color:#000; line-height:1.3; margin-top:40px;">Dokumen ini telah ditandatangani<br>secara elektronik menggunakan<br>Sertifikat Elektronik yang<br>diterbitkan oleh Mekari</div>
+                <div style="font-weight:bold; text-decoration:underline; margin-bottom: 40px;">Penanggung Jawab</div>
             </td>
-            <td style="border:none; width:50%; text-align:center; vertical-align:top;">
-                <div style="margin-bottom: 5px;">&nbsp;</div>
-                <div style="margin-bottom: 40px;">&nbsp;</div>
+        </tr>
+        <tr>
+            <td style="border:none; width:50%; text-align:right; padding-right:10px; vertical-align:top;">
+                <div style="font-size:8pt; font-style:italic; color:#000; line-height:1.3;">Dokumen ini telah ditandatangani<br>secara elektronik menggunakan<br>Sertifikat Elektronik yang<br>diterbitkan oleh Mekari</div>
+            </td>
+            <td style="border:none; width:50%; text-align:center;">
                 <div style="border:2px dashed #ccc; width:80px; height:80px; text-align:center; vertical-align:middle; color:#999; font-size:7pt; line-height:80px; margin:0 auto 5px auto;">[QR CODE]</div>
                 <div style="font-weight:bold; text-decoration:underline;">Direktur</div>
             </td>
