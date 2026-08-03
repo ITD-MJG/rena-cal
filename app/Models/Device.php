@@ -120,4 +120,9 @@ class Device extends Model
     {
         return $this->hasMany(Inventory::class);
     }
+
+    public function calibrationWorksheets()
+    {
+        return $this->hasMany(CalibrationWorksheet::class);
+    }
 }

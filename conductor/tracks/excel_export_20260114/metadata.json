@@ -1,8 +1,0 @@
-{
-  "track_id": "excel_export_20260114",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-01-14T12:00:00Z",
-  "updated_at": "2026-01-14T12:00:00Z",
-  "description": "Add Excel Export to Device table with flexibility to choose Export all or choose date selection and make it visible to Super Admin, Admin, and Hospital Admin roles."
-}

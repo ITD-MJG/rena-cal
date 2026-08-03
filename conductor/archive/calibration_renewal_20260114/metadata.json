@@ -1,8 +1,0 @@
-{
-  "track_id": "calibration_renewal_20260114",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-01-14T12:00:00Z",
-  "updated_at": "2026-01-14T12:00:00Z",
-  "description": "add Send Calibration Renewal Notification email to Hospital Admin email, use Bahasa for the email content"
-}

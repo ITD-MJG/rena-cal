@@ -25,6 +25,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use YousefAman\FilamentAutosave\AutosavePlugin;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -56,6 +57,7 @@ class DashboardPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make(fn () => __('navigation.Devices')),
+                NavigationGroup::make('Kalibrasi'),
                 NavigationGroup::make(fn () => __('navigation.Admin Management')),
                 NavigationGroup::make(fn () => __('navigation.User Management')),
             ])
@@ -83,6 +85,7 @@ class DashboardPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
+                AutosavePlugin::make(),
             ]);
     }
 }

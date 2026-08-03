@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e7bec63dd8ee833056e0dfab7ad0d978",
+    "content-hash": "8962685071eedd2d3d70bf61db1505f8",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -9618,6 +9618,68 @@
                 }
             ],
             "time": "2026-04-26T05:33:54+00:00"
+        },
+        {
+            "name": "yousefaman/filament-autosave",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yousef-aman/filament-autosave",
+                "reference": "f5aa809c7f85816a1a3d4e5404c30a616d5f6aea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yousef-aman/filament-autosave/zipball/f5aa809c7f85816a1a3d4e5404c30a616d5f6aea",
+                "reference": "f5aa809c7f85816a1a3d4e5404c30a616d5f6aea",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^4.0 || ^5.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^10.0 || ^11.0",
+                "pestphp/pest": "^3.0 || ^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "YousefAman\\FilamentAutosave\\AutosaveServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "YousefAman\\FilamentAutosave\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yousef Aman",
+                    "email": "superyousef1999@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Automatic form saving for Filament with a visual status indicator, undo, and drafts",
+            "homepage": "https://github.com/yousef-aman/filament-autosave",
+            "keywords": [
+                "Forms",
+                "autosave",
+                "filament",
+                "laravel",
+                "livewire"
+            ],
+            "support": {
+                "issues": "https://github.com/yousef-aman/filament-autosave/issues",
+                "source": "https://github.com/yousef-aman/filament-autosave"
+            },
+            "time": "2026-07-27T17:57:52+00:00"
         }
     ],
     "packages-dev": [
