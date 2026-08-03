@@ -43,7 +43,7 @@
         .fail { color: #721c24; font-weight: bold; }
 
         .page-num { text-align: center; font-size: 7pt; color: #000; padding-top: 5mm; border-top: 0.5px solid #ddd; margin-top: 5mm; }
-        .page-1 { font-size: 11pt; }
+        .page-1 { font-size: 12pt; }
     </style>
 </head>
 <body>
@@ -109,22 +109,16 @@
             {{-- Right: Identitas Pemilik --}}
             <td style="border:none; width:50%; vertical-align:top; padding-left:10px;">
                 <div style="font-weight:bold; font-size:10pt; border-bottom: 2px solid #003366; padding-bottom:3px; margin-bottom:8px;">IDENTITAS PEMILIK</div>
-                <table style="width:100%;">
-                    <tr>
-                        <td style="border:none; font-weight:bold; width:110px; padding:3px 0;">Nama Pemilik :</td>
-                        <td style="border:none; padding:3px 0;">{{ $worksheet->device->customer->name ?? '—' }}</td>
-                    </tr>
-                    <tr>
-                        <td style="border:none; font-weight:bold; padding:3px 0; vertical-align:top;">Alamat Pemilik :</td>
-                        <td style="border:none; padding:3px 0;">{{ $worksheet->device->customer->address ?? '—' }}</td>
-                    </tr>
-                </table>
+                <div style="margin-bottom:5px;"><strong>Nama Pemilik :</strong></div>
+                <div style="margin-bottom:8px;">{{ $worksheet->device->customer->name ?? '—' }}</div>
+                <div style="margin-bottom:5px;"><strong>Alamat Pemilik :</strong></div>
+                <div>{{ $worksheet->device->customer->address ?? '—' }}</div>
             </td>
         </tr>
     </table>
 
     {{-- Dates Section --}}
-    <table style="margin-top: 15px;">
+    <table style="margin-top: 15px; width:75%;">
         <tr>
             <td style="border:none; font-weight:bold; width:140px; padding:4px 0;">Tanggal Penerimaan</td>
             <td style="border:none; width:15px; padding:4px 0;">:</td>
@@ -153,11 +147,11 @@
             <td style="border:none; width:50%;"></td>
             <td style="border:none; width:50%; text-align:center;">
                 <div style="margin-bottom: 5px;">Jakarta, {{ $worksheet->calibration_date?->addDay()->format('d M Y') ?? '—' }}</div>
-                <div style="font-weight:bold; text-decoration:underline; margin-bottom: 40px;">Penanggung Jawab</div>
+                <div style="font-weight:bold; text-decoration:underline; margin-bottom: 5px;">Penanggung Jawab</div>
             </td>
         </tr>
         <tr>
-            <td style="border:none; width:50%; text-align:right; padding-right:10px; vertical-align:top;">
+            <td style="border:none; width:50%; text-align:right; padding-right:5px; vertical-align:middle;">
                 <div style="font-size:8pt; font-style:italic; color:#000; line-height:1.3;">Dokumen ini telah ditandatangani<br>secara elektronik menggunakan<br>Sertifikat Elektronik yang<br>diterbitkan oleh Mekari</div>
             </td>
             <td style="border:none; width:50%; text-align:center;">
