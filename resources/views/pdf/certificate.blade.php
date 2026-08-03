@@ -68,7 +68,7 @@
     <div style="text-align:center; font-size: 16pt; font-weight:bold; margin-bottom: 15px;">SERTIFIKAT KALIBRASI</div>
 
     {{-- Document Numbers --}}
-    <table style="margin-bottom: 12px;">
+    <table style="margin-bottom: 25px;">
         <tr>
             <td style="border:none; font-weight:bold; width:160px;">Nomor Sertifikat</td>
             <td style="border:none; width:15px;">:</td>
@@ -82,7 +82,7 @@
     </table>
 
     {{-- Two-Column: Identitas Alat + Identitas Pemilik --}}
-    <table style="margin-bottom: 12px;">
+    <table style="margin-bottom: 25px;">
         <tr>
             {{-- Left: Identitas Alat --}}
             <td style="border:none; width:50%; vertical-align:top; padding-right:10px;">
@@ -122,7 +122,7 @@
     </table>
 
     {{-- Dates Section --}}
-    <table style="margin-top: 15px; width:75%;">
+    <table style="margin-top: 25px; width:75%;">
         <tr>
             <td style="border:none; font-weight:bold; width:180px; padding:4px 0;">Tanggal Penerimaan</td>
             <td style="border:none; width:15px; padding:4px 0;">:</td>
@@ -146,7 +146,7 @@
     </table>
 
     {{-- Signatures + QR --}}
-    <table style="margin-top: 30px;">
+    <table style="margin-top: 40px;">
         <tr>
             <td style="border:none; width:50%;"></td>
             <td style="border:none; width:50%; text-align:center;">
