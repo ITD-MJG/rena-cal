@@ -6,7 +6,7 @@
     <style>
         * { margin: 0; padding: 0; }
         body { font-family: Arial, Helvetica, sans-serif; font-size: 9pt; color: #000; }
-        .page { width: 190mm; padding: 10mm 20mm; page-break-after: always; }
+        .page { width: 170mm; padding: 10mm 20mm; page-break-after: always; }
         .page:last-child { page-break-after: avoid; }
 
         table { border-collapse: collapse; width: 100%; }
@@ -34,8 +34,9 @@
         .sig-table td { border: none !important; padding-top: 40px; }
         .sig-line { border-top: 1px solid #000; padding-top: 4px; text-align: center; font-size: 8pt; }
 
-        .data-table th { background: #003366; color: #fff; font-size: 8pt; padding: 3px 5px; text-align: left; }
-        .data-table td { border: 0.5px solid #ccc; font-size: 8pt; padding: 3px 5px; }
+        .data-table th { background: #003366; color: #fff; font-size: 8pt; padding: 3px 5px; text-align: center; }
+        .data-table td { border: 0.5px solid #ccc; font-size: 8pt; padding: 3px 5px; text-align: center; }
+        .data-table td.text-left { text-align: left; }
         .data-table tr:nth-child(even) td { background: #f8f8f8; }
 
         .pass { color: #155724; font-weight: bold; }
@@ -49,102 +50,141 @@
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 {{-- PAGE 1: COVER --}}
 {{-- ═══════════════════════════════════════════════════════════════ --}}
+@*
+Page 1 layout based on PDF reference:
+- Header: logo left, company name/address center-right
+- Title: SERTIFIKAT KALIBRASI
+- Doc numbers on left
+- Two columns: IDENTITAS ALAT (left) | IDENTITAS PEMILIK (right)
+- Dates section
+- Signatures with QR placeholder
+- Footer disclaimer
+*@
 <div class="page">
 
-    {{-- Company Header --}}
-    <table style="margin-bottom: 8px;">
+    {{-- Header: Logo + Company --}}
+    <table style="margin-bottom: 5px;">
         <tr>
-            <td style="border:none; text-align:center;">
-                <div style="font-size: 14pt; font-weight:bold; color:#003366;">PT RENA KALIBRINDO SELARAS</div>
-                <div style="font-size: 7.5pt; color:#666;">Jl. Pangeran Antasari No.4, Rt.074 Rw.07, Cipete Selatan, Kec. Cilandak, Jakarta Selatan — 12150</div>
-                <div style="font-size: 7.5pt; color:#666;">Email: admin@rena.co.id</div>
+            <td style="border:none; width:80px; vertical-align:middle;">
+                <div style="border: 2px solid #c00; padding: 4px; text-align:center; font-size: 16pt; font-weight:bold; color:#003366;">RENA</div>
+            </td>
+            <td style="border:none; text-align:center; vertical-align:middle;">
+                <div style="font-size: 14pt; font-weight:bold; color:#000;">PT RENA KALIBRINDO SELARAS</div>
+                <div style="font-size: 8pt; color:#000;">Jl. Pangeran Antasari No.45, RT.07 RW.07, Cipete Selatan,</div>
+                <div style="font-size: 8pt; color:#000;">Kecamatan Cilandak Jakarta Selatan — 12150</div>
+                <div style="font-size: 8pt; color:#000;">Email : admin@rena.co.id</div>
             </td>
         </tr>
     </table>
-    <hr style="border: 1.5px solid #003366; margin-bottom: 10px;">
+    <hr style="border: 1.5px solid #000; margin-bottom: 8px;">
 
-    {{-- Document Number --}}
-    <table>
-        <tr><td style="border:none;" class="right small">No. {{ $worksheet->cert_number ?? 'RKS/XX/XXXX' }}</td></tr>
+    {{-- Title --}}
+    <div style="text-align:center; font-size: 16pt; font-weight:bold; margin-bottom: 15px;">SERTIFIKAT KALIBRASI</div>
+
+    {{-- Document Numbers --}}
+    <table style="margin-bottom: 12px;">
+        <tr>
+            <td style="border:none; font-weight:bold; width:120px;">Nomor Sertifikat</td>
+            <td style="border:none; width:15px;">:</td>
+            <td style="border:none; font-weight:bold;">{{ $worksheet->cert_number ?? 'RKS/XX/XXXX' }}</td>
+        </tr>
+        <tr>
+            <td style="border:none; font-weight:bold;">Nomor Pesanan</td>
+            <td style="border:none;">:</td>
+            <td style="border:none; font-weight:bold;">{{ $worksheet->order_number ?? '—' }}</td>
+        </tr>
     </table>
 
-    {{-- QR Placeholder --}}
-    <table style="margin: 15px auto;">
+    {{-- Two-Column: Identitas Alat + Identitas Pemilik --}}
+    <table style="margin-bottom: 12px;">
         <tr>
-            <td style="border: 2px dashed #ccc; width:90px; height:90px; text-align:center; vertical-align:middle; color:#999; font-size:8pt;">
-                [QR CODE]
+            {{-- Left: Identitas Alat --}}
+            <td style="border:none; width:50%; vertical-align:top; padding-right:10px;">
+                <div style="font-weight:bold; font-size:10pt; border-bottom: 2px solid #003366; padding-bottom:3px; margin-bottom:8px;">IDENTITAS ALAT</div>
+                <table style="width:100%;">
+                    <tr>
+                        <td style="border:none; font-weight:bold; width:100px; padding:3px 0;">Nama Alat :</td>
+                        <td style="border:none; padding:3px 0;">{{ $worksheet->device->deviceName->name ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:none; font-weight:bold; padding:3px 0;">Merek :</td>
+                        <td style="border:none; padding:3px 0;">{{ $worksheet->device->brand->name ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:none; font-weight:bold; padding:3px 0;">Tipe :</td>
+                        <td style="border:none; padding:3px 0;">{{ $worksheet->device->type->name ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:none; font-weight:bold; padding:3px 0;">Nomor Seri :</td>
+                        <td style="border:none; padding:3px 0;">{{ $worksheet->device->serial_number ?? '—' }}</td>
+                    </tr>
+                </table>
+            </td>
+            {{-- Right: Identitas Pemilik --}}
+            <td style="border:none; width:50%; vertical-align:top; padding-left:10px;">
+                <div style="font-weight:bold; font-size:10pt; border-bottom: 2px solid #003366; padding-bottom:3px; margin-bottom:8px;">IDENTITAS PEMILIK</div>
+                <table style="width:100%;">
+                    <tr>
+                        <td style="border:none; font-weight:bold; width:110px; padding:3px 0;">Nama Pemilik :</td>
+                        <td style="border:none; padding:3px 0;">{{ $worksheet->device->customer->name ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:none; font-weight:bold; padding:3px 0; vertical-align:top;">Alamat Pemilik :</td>
+                        <td style="border:none; padding:3px 0;">{{ $worksheet->device->customer->address ?? '—' }}</td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>
 
-    {{-- Device Info Table --}}
-    <table class="border-box" style="margin-bottom: 15px;">
+    {{-- Dates Section --}}
+    <table style="margin-top: 15px;">
         <tr>
-            <td class="label-cell">Jenis Alat</td>
-            <td class="value-cell">{{ $worksheet->device->deviceName->name ?? '—' }}</td>
-            <td class="label-cell">No. Dokumen</td>
-            <td class="value-cell">{{ $worksheet->cert_number ?? '—' }}</td>
+            <td style="border:none; font-weight:bold; width:140px; padding:4px 0;">Tanggal Penerimaan</td>
+            <td style="border:none; width:15px; padding:4px 0;">:</td>
+            <td style="border:none; padding:4px 0;">{{ strtoupper($worksheet->received_date?->format('d M Y') ?? '—') }}</td>
         </tr>
         <tr>
-            <td class="label-cell">Merk</td>
-            <td class="value-cell">{{ $worksheet->device->brand->name ?? '—' }}</td>
-            <td class="label-cell">Tanggal Penerimaan</td>
-            <td class="value-cell">{{ $worksheet->received_date?->format('d M Y') ?? '—' }}</td>
+            <td style="border:none; font-weight:bold; padding:4px 0;">Tanggal Kalibrasi</td>
+            <td style="border:none; padding:4px 0;">:</td>
+            <td style="border:none; padding:4px 0;">{{ strtoupper($worksheet->calibration_date?->format('d M Y') ?? '—') }}</td>
         </tr>
         <tr>
-            <td class="label-cell">Tipe</td>
-            <td class="value-cell">{{ $worksheet->device->type->name ?? '—' }}</td>
-            <td class="label-cell">Tanggal Kalibrasi</td>
-            <td class="value-cell">{{ $worksheet->calibration_date?->format('d M Y') ?? '—' }}</td>
+            <td style="border:none; font-weight:bold; padding:4px 0;">Hasil Kalibrasi</td>
+            <td style="border:none; padding:4px 0;">:</td>
+            <td style="border:none; padding:4px 0; font-weight:bold; {{ ($worksheet->conclusion ?? '') === 'Laik Pakai' ? 'color:#155724;' : 'color:#721c24;' }}">{{ strtoupper($worksheet->conclusion ?? 'TIDAK LAIK PAKAI') }}</td>
         </tr>
         <tr>
-            <td class="label-cell">Nomor Seri</td>
-            <td class="value-cell">{{ $worksheet->device->serial_number ?? '—' }}</td>
-            <td class="label-cell">Kalibrasi Berikutnya</td>
-            <td class="value-cell">{{ $worksheet->calibration_date?->addYear()->format('d M Y') ?? '—' }}</td>
+            <td style="border:none; font-weight:bold; padding:4px 0;">Berlaku Sampai</td>
+            <td style="border:none; padding:4px 0;">:</td>
+            <td style="border:none; padding:4px 0;">{{ strtoupper($worksheet->calibration_date?->addYear()->format('d M Y') ?? '—') }}</td>
         </tr>
     </table>
 
-    {{-- Result --}}
-    <table style="margin: 15px 0;">
+    {{-- Signatures + QR --}}
+    <table style="margin-top: 30px;">
         <tr>
-            <td style="border:none; text-align:center;">
-                <span class="badge {{ $worksheet->conclusion === 'Laik Pakai' ? 'badge-laik' : 'badge-tidak' }}">
-                    {{ strtoupper($worksheet->conclusion ?? 'TIDAK LAIK PAKAI') }}
-                </span>
-            </td>
-        </tr>
-    </table>
-
-    {{-- Customer --}}
-    <table style="margin: 15px 0;">
-        <tr>
-            <td style="border:none; padding:8px; background:#f5f5f5; border-left: 3px solid #003366;">
-                <strong>{{ $worksheet->device->customer->name ?? '—' }}</strong><br>
-                <span class="small">{{ $worksheet->device->customer->address ?? '—' }}</span>
-            </td>
-        </tr>
-    </table>
-
-    {{-- Date & Signatures --}}
-    <table style="margin-top: 25px;">
-        <tr>
-            <td style="border:none; text-align:right; width:50%;">Jakarta, {{ $worksheet->calibration_date?->addDay()->format('d M Y') ?? '—' }}</td>
             <td style="border:none; width:50%;"></td>
-        </tr>
-    </table>
-    <table style="margin-top: 5px;">
-        <tr>
-            <td style="border:none; width:50%; text-align:center; padding-top:45px;">
-                <div class="sig-line">Penanggung Jawab</div>
+            <td style="border:none; width:50%; text-align:center;">
+                <div style="margin-bottom: 5px;">Jakarta, {{ $worksheet->calibration_date?->addDay()->format('d M Y') ?? '—' }}</div>
+                <div style="font-weight:bold; text-decoration:underline; margin-bottom: 40px;">Penanggung Jawab</div>
             </td>
-            <td style="border:none; width:50%; text-align:center; padding-top:45px;">
-                <div class="sig-line">Direktur</div>
+        </tr>
+        <tr>
+            <td style="border:none; width:50%; text-align:right; padding-right:10px; vertical-align:top;">
+                <div style="font-size:7.5pt; font-style:italic; color:#666; line-height:1.3;">Dokumen ini telah ditandatangani<br>secara elektronik menggunakan<br>Sertifikat Elektronik yang<br>diterbitkan oleh Mekari</div>
+            </td>
+            <td style="border:none; width:50%; text-align:center;">
+                {{-- QR Code Placeholder --}}
+                <div style="display:inline-block; border:2px dashed #ccc; width:80px; height:80px; text-align:center; vertical-align:middle; color:#999; font-size:7pt; line-height:80px; margin-bottom:5px;">[QR CODE]</div>
+                <div style="font-weight:bold; text-decoration:underline;">Direktur</div>
             </td>
         </tr>
     </table>
 
+    {{-- Footer --}}
     <div class="page-num">Halaman 1 dari 3</div>
+    <div style="text-align:center; font-size:7pt; color:#666; margin-top:3mm;">Dilarang memperbanyak dan atau mempublikasikan sebagian isi Sertifikat ini tanpa izin PT Rena Kalibrindo Selaras</div>
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════════ --}}
@@ -204,25 +244,25 @@
     <div class="section-title">3. KONDISI LINGKUNGAN</div>
     <table class="data-table" style="margin-bottom: 10px;">
         <thead>
-            <tr><th style="width:35%;">Parameter</th><th>Awal</th><th>Akhir</th><th>Toleransi</th><th>Hasil</th></tr>
+            <tr><th style="width:35%;" class="text-left">Parameter</th><th>Awal</th><th>Akhir</th><th>Toleransi</th><th>Hasil</th></tr>
         </thead>
         <tbody>
             <tr>
-                <td>Suhu Ruangan (°C)</td>
+                <td class="text-left">Suhu Ruangan (°C)</td>
                 <td>{{ $worksheet->temperature_start ?? '—' }}</td>
                 <td>{{ $worksheet->temperature_end ?? '—' }}</td>
                 <td>10°C s/d 40°C</td>
                 <td class="pass">Lulus</td>
             </tr>
             <tr>
-                <td>Kelembaban Ruangan (%RH)</td>
+                <td class="text-left">Kelembaban Ruangan (%RH)</td>
                 <td>{{ $worksheet->humidity_start ?? '—' }}</td>
                 <td>{{ $worksheet->humidity_end ?? '—' }}</td>
                 <td>15%RH s/d 85%RH</td>
                 <td class="pass">Lulus</td>
             </tr>
             <tr>
-                <td>Tegangan Utama (Vac)</td>
+                <td class="text-left">Tegangan Utama (Vac)</td>
                 <td colspan="2">{{ $worksheet->main_voltage ?? '—' }}</td>
                 <td>—</td>
                 <td class="pass">Lulus</td>
@@ -240,7 +280,7 @@
             @forelse($worksheet->instruments as $i => $instrument)
             <tr>
                 <td class="center">{{ $i + 1 }}</td>
-                <td>{{ $instrument->name }}</td>
+                <td class="text-left">{{ $instrument->name }}</td>
                 <td>{{ $instrument->brand ?? '—' }}</td>
                 <td>{{ $instrument->type ?? '—' }}</td>
                 <td>{{ $instrument->serial_number ?? '—' }}</td>
@@ -273,13 +313,13 @@
     <div class="section-title">6. PENGUKURAN KESELAMATAN LISTRIK</div>
     <table class="data-table">
         <thead>
-            <tr><th style="width:5%;">No</th><th style="width:40%;">Parameter</th><th style="width:15%;">Terukur</th><th style="width:25%;">Ambang Batas</th><th style="width:15%;">Hasil</th></tr>
+            <tr><th style="width:5%;">No</th><th style="width:40%;" class="text-left">Parameter</th><th style="width:15%;">Terukur</th><th style="width:25%;">Ambang Batas</th><th style="width:15%;">Hasil</th></tr>
         </thead>
         <tbody>
             @foreach($worksheet->electricalSafetyTests as $i => $test)
             <tr>
                 <td class="center">{{ $i + 1 }}</td>
-                <td>{{ $test->parameter_name }}</td>
+                <td class="text-left">{{ $test->parameter_name }}</td>
                 <td>{{ $test->corrected_value ?? $test->raw_value }} {{ $test->unit }}</td>
                 <td>{{ $test->threshold_operator }} {{ $test->threshold_value }} {{ $test->threshold_unit }}</td>
                 <td class="{{ $test->result === 'Memenuhi' ? 'pass' : 'fail' }}">{{ $test->result }}</td>
