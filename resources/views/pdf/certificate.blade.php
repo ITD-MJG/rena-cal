@@ -42,7 +42,7 @@
         .pass { color: #155724; font-weight: bold; }
         .fail { color: #721c24; font-weight: bold; }
 
-        .page-num { text-align: center; font-size: 7pt; color: #000; padding-top: 5mm; border-top: 0.5px solid #ddd; margin-top: 5mm; }
+        .page-num { text-align: center; font-size: 9pt; color: #000; padding-top: 5mm; border-top: 0.5px solid #ddd; margin-top: 5mm; }
         .page-1 { font-size: 12pt; }
     </style>
 </head>
@@ -155,7 +155,7 @@
             </td>
         </tr>
         <tr>
-            <td style="border:none; width:50%; text-align:right; padding-right:5px; vertical-align:top; padding-top:0;">
+            <td style="border:none; width:50%; text-align:center; padding-right:5px; vertical-align:middle; padding-top:0;">
                 <div style="font-size:8pt; font-style:italic; color:#000; line-height:1.3;">Dokumen ini telah ditandatangani<br>secara elektronik menggunakan<br>Sertifikat Elektronik yang<br>diterbitkan oleh Mekari</div>
             </td>
             <td style="border:none; width:50%; text-align:center; vertical-align:top; padding-top:0;">
