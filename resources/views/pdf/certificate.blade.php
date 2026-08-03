@@ -70,7 +70,7 @@
     {{-- Document Numbers --}}
     <table style="margin-bottom: 12px;">
         <tr>
-            <td style="border:none; font-weight:bold; width:120px;">Nomor Sertifikat</td>
+            <td style="border:none; font-weight:bold; width:160px;">Nomor Sertifikat</td>
             <td style="border:none; width:15px;">:</td>
             <td style="border:none; font-weight:bold;">{{ $worksheet->cert_number ?? 'RKS/XX/XXXX' }}</td>
         </tr>
@@ -86,32 +86,42 @@
         <tr>
             {{-- Left: Identitas Alat --}}
             <td style="border:none; width:50%; vertical-align:top; padding-right:10px;">
-                <div style="font-weight:bold; font-size:10pt; border-bottom: 2px solid #003366; padding-bottom:3px; margin-bottom:8px;">IDENTITAS ALAT</div>
+                <div style="font-weight:bold; font-size:12pt; border-bottom: 2px solid #003366; padding-bottom:3px; margin-bottom:8px; text-align:center;">IDENTITAS ALAT</div>
                 <table style="width:100%;">
                     <tr>
-                        <td style="border:none; font-weight:bold; width:100px; padding:3px 0;">Nama Alat :</td>
+                        <td style="border:none; font-weight:bold; width:110px; padding:3px 0;">Nama Alat</td>
+                        <td style="border:none; width:15px; padding:3px 0;">:</td>
                         <td style="border:none; padding:3px 0;">{{ $worksheet->device->deviceName->name ?? '—' }}</td>
                     </tr>
                     <tr>
-                        <td style="border:none; font-weight:bold; padding:3px 0;">Merek :</td>
+                        <td style="border:none; font-weight:bold; width:110px; padding:3px 0;">Merek</td>
+                        <td style="border:none; width:15px; padding:3px 0;">:</td>
                         <td style="border:none; padding:3px 0;">{{ $worksheet->device->brand->name ?? '—' }}</td>
                     </tr>
                     <tr>
-                        <td style="border:none; font-weight:bold; padding:3px 0;">Tipe :</td>
+                        <td style="border:none; font-weight:bold; width:110px; padding:3px 0;">Tipe</td>
+                        <td style="border:none; width:15px; padding:3px 0;">:</td>
                         <td style="border:none; padding:3px 0;">{{ $worksheet->device->type->name ?? '—' }}</td>
                     </tr>
                     <tr>
-                        <td style="border:none; font-weight:bold; padding:3px 0;">Nomor Seri :</td>
+                        <td style="border:none; font-weight:bold; width:110px; padding:3px 0;">Nomor Seri</td>
+                        <td style="border:none; width:15px; padding:3px 0;">:</td>
                         <td style="border:none; padding:3px 0;">{{ $worksheet->device->serial_number ?? '—' }}</td>
                     </tr>
                 </table>
             </td>
             {{-- Right: Identitas Pemilik --}}
             <td style="border:none; width:50%; vertical-align:top; padding-left:10px;">
-                <div style="font-weight:bold; font-size:10pt; border-bottom: 2px solid #003366; padding-bottom:3px; margin-bottom:8px;">IDENTITAS PEMILIK</div>
-                <div style="margin-bottom:5px;"><strong>Nama Pemilik :</strong></div>
-                <div style="margin-bottom:8px;">{{ $worksheet->device->customer->name ?? '—' }}</div>
-                <div style="margin-bottom:5px;"><strong>Alamat Pemilik :</strong></div>
+                <div style="font-weight:bold; font-size:12pt; border-bottom: 2px solid #003366; padding-bottom:3px; margin-bottom:8px; text-align:center;">IDENTITAS PEMILIK</div>
+                <div style="margin-bottom:5px;">
+                    <span style="font-weight:bold;">Nama Pemilik</span>
+                    <span style="margin:0 5px;">:</span>
+                    {{ $worksheet->device->customer->name ?? '—' }}
+                </div>
+                <div style="margin-bottom:5px;">
+                    <span style="font-weight:bold;">Alamat Pemilik</span>
+                    <span style="margin:0 5px;">:</span>
+                </div>
                 <div>{{ $worksheet->device->customer->address ?? '—' }}</div>
             </td>
         </tr>
@@ -120,7 +130,7 @@
     {{-- Dates Section --}}
     <table style="margin-top: 15px; width:75%;">
         <tr>
-            <td style="border:none; font-weight:bold; width:140px; padding:4px 0;">Tanggal Penerimaan</td>
+            <td style="border:none; font-weight:bold; width:180px; padding:4px 0;">Tanggal Penerimaan</td>
             <td style="border:none; width:15px; padding:4px 0;">:</td>
             <td style="border:none; padding:4px 0;">{{ strtoupper($worksheet->received_date?->format('d M Y') ?? '—') }}</td>
         </tr>
