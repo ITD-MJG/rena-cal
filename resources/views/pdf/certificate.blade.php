@@ -155,11 +155,11 @@
             </td>
         </tr>
         <tr>
-            <td style="border:none; width:50%; text-align:right; padding-right:5px; vertical-align:middle;">
+            <td style="border:none; width:50%; text-align:right; padding-right:5px; vertical-align:top; padding-top:0;">
                 <div style="font-size:8pt; font-style:italic; color:#000; line-height:1.3;">Dokumen ini telah ditandatangani<br>secara elektronik menggunakan<br>Sertifikat Elektronik yang<br>diterbitkan oleh Mekari</div>
             </td>
-            <td style="border:none; width:50%; text-align:center;">
-                <div style="border:2px dashed #ccc; width:80px; height:80px; text-align:center; vertical-align:middle; color:#999; font-size:7pt; line-height:80px; margin:10px auto;">[QR CODE]</div>
+            <td style="border:none; width:50%; text-align:center; vertical-align:top; padding-top:0;">
+                <div style="border:2px dashed #ccc; width:80px; height:80px; text-align:center; vertical-align:middle; color:#999; font-size:7pt; line-height:80px; margin:0 auto;">[QR CODE]</div>
                 <div style="font-weight:bold; text-decoration:underline;">Direktur</div>
             </td>
         </tr>
