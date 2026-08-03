@@ -42,7 +42,8 @@
         .pass { color: #155724; font-weight: bold; }
         .fail { color: #721c24; font-weight: bold; }
 
-        .page-num { text-align: center; font-size: 7pt; color: #999; padding-top: 5mm; border-top: 0.5px solid #ddd; margin-top: 5mm; }
+        .page-num { text-align: center; font-size: 7pt; color: #000; padding-top: 5mm; border-top: 0.5px solid #ddd; margin-top: 5mm; }
+        .page-1 { font-size: 11pt; }
     </style>
 </head>
 <body>
@@ -59,7 +60,7 @@
 - Signatures with QR placeholder
 - Footer disclaimer
 *--}}
-<div class="page">
+<div class="page page-1">
 
     @include('pdf.partials.header')
 
@@ -149,19 +150,15 @@
     {{-- Signatures + QR --}}
     <table style="margin-top: 30px;">
         <tr>
-            <td style="border:none; width:50%;"></td>
-            <td style="border:none; width:50%; text-align:center;">
+            <td style="border:none; width:50%; text-align:right; padding-right:15px; vertical-align:top;">
                 <div style="margin-bottom: 5px;">Jakarta, {{ $worksheet->calibration_date?->addDay()->format('d M Y') ?? '—' }}</div>
-                <div style="font-weight:bold; text-decoration:underline; margin-bottom: 40px;">Penanggung Jawab</div>
+                <div style="font-weight:bold; text-decoration:underline; margin-bottom: 5px;">Penanggung Jawab</div>
+                <div style="font-size:8pt; font-style:italic; color:#000; line-height:1.3; margin-top:40px;">Dokumen ini telah ditandatangani<br>secara elektronik menggunakan<br>Sertifikat Elektronik yang<br>diterbitkan oleh Mekari</div>
             </td>
-        </tr>
-        <tr>
-            <td style="border:none; width:50%; text-align:right; padding-right:10px; vertical-align:top;">
-                <div style="font-size:7.5pt; font-style:italic; color:#666; line-height:1.3;">Dokumen ini telah ditandatangani<br>secara elektronik menggunakan<br>Sertifikat Elektronik yang<br>diterbitkan oleh Mekari</div>
-            </td>
-            <td style="border:none; width:50%; text-align:center;">
-                {{-- QR Code Placeholder --}}
-                <div style="display:inline-block; border:2px dashed #ccc; width:80px; height:80px; text-align:center; vertical-align:middle; color:#999; font-size:7pt; line-height:80px; margin-bottom:5px;">[QR CODE]</div>
+            <td style="border:none; width:50%; text-align:center; vertical-align:top;">
+                <div style="margin-bottom: 5px;">&nbsp;</div>
+                <div style="margin-bottom: 40px;">&nbsp;</div>
+                <div style="border:2px dashed #ccc; width:80px; height:80px; text-align:center; vertical-align:middle; color:#999; font-size:7pt; line-height:80px; margin:0 auto 5px auto;">[QR CODE]</div>
                 <div style="font-weight:bold; text-decoration:underline;">Direktur</div>
             </td>
         </tr>
@@ -173,7 +170,7 @@
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 {{-- PAGE 2: TECHNICAL DETAILS --}}
 {{-- ═══════════════════════════════════════════════════════════════ --}}
-<div class="page">
+<div class="page page-1">
 
     @include('pdf.partials.header')
 
@@ -311,7 +308,7 @@
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 {{-- PAGE 3: PERFORMANCE, CONCLUSION, NOTES --}}
 {{-- ═══════════════════════════════════════════════════════════════ --}}
-<div class="page">
+<div class="page page-1">
 
     @include('pdf.partials.header')
 
