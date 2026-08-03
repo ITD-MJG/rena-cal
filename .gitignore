@@ -28,3 +28,6 @@ app/Providers/AppServiceProvider.php
 .gemini
 GEMINI.md
 .htaccess
+*.xlsx
+*.pdf
+.~lock.*
