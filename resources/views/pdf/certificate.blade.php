@@ -113,15 +113,9 @@
             {{-- Right: Identitas Pemilik --}}
             <td style="border:none; width:50%; vertical-align:top; padding-left:10px;">
                 <div style="font-weight:bold; font-size:12pt; border-bottom: 2px solid #003366; padding-bottom:3px; margin-bottom:8px; text-align:center;">IDENTITAS PEMILIK</div>
-                <div style="margin-bottom:5px;">
-                    <span style="font-weight:bold;">Nama Pemilik</span>
-                    <span style="margin:0 5px;">:</span>
-                    {{ $worksheet->device->customer->name ?? '—' }}
-                </div>
-                <div style="margin-bottom:5px;">
-                    <span style="font-weight:bold;">Alamat Pemilik</span>
-                    <span style="margin:0 5px;">:</span>
-                </div>
+                <div style="margin-bottom:5px;"><strong>Nama Pemilik :</strong></div>
+                <div style="margin-bottom:8px;">{{ $worksheet->device->customer->name ?? '—' }}</div>
+                <div style="margin-bottom:5px;"><strong>Alamat Pemilik :</strong></div>
                 <div>{{ $worksheet->device->customer->address ?? '—' }}</div>
             </td>
         </tr>
@@ -165,7 +159,7 @@
                 <div style="font-size:8pt; font-style:italic; color:#000; line-height:1.3;">Dokumen ini telah ditandatangani<br>secara elektronik menggunakan<br>Sertifikat Elektronik yang<br>diterbitkan oleh Mekari</div>
             </td>
             <td style="border:none; width:50%; text-align:center;">
-                <div style="border:2px dashed #ccc; width:80px; height:80px; text-align:center; vertical-align:middle; color:#999; font-size:7pt; line-height:80px; margin:0 auto 5px auto;">[QR CODE]</div>
+                <div style="border:2px dashed #ccc; width:80px; height:80px; text-align:center; vertical-align:middle; color:#999; font-size:7pt; line-height:80px; margin:10px auto;">[QR CODE]</div>
                 <div style="font-weight:bold; text-decoration:underline;">Direktur</div>
             </td>
         </tr>
