@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CalibrationPhysicalInspection extends Model
 {
@@ -12,7 +13,7 @@ class CalibrationPhysicalInspection extends Model
         'result' => 'boolean',
     ];
 
-    public function worksheet()
+    public function worksheet(): BelongsTo
     {
         return $this->belongsTo(CalibrationWorksheet::class, 'worksheet_id');
     }

@@ -72,12 +72,12 @@
         <tr>
             <td style="border:none; font-weight:bold; width:160px;">Nomor Sertifikat</td>
             <td style="border:none; width:15px;">:</td>
-            <td style="border:none; font-weight:bold;">{{ $worksheet->cert_number ?? 'RKS/XX/XXXX' }}</td>
+            <td style="border:none; font-weight:bold;">{{ $worksheet->device->cert_number ?? 'RKS/XX/XXXX' }}</td>
         </tr>
         <tr>
             <td style="border:none; font-weight:bold;">Nomor Pesanan</td>
             <td style="border:none;">:</td>
-            <td style="border:none; font-weight:bold;">{{ $worksheet->order_number ?? '—' }}</td>
+            <td style="border:none; font-weight:bold;">{{ $worksheet->device->order_number ?? '—' }}</td>
         </tr>
     </table>
 
@@ -188,11 +188,11 @@
             <td class="label-cell">No. Seri</td>
             <td>{{ $worksheet->device->serial_number ?? '—' }}</td>
             <td class="label-cell">Resolusi</td>
-            <td>{{ $worksheet->device->resolution ?? '0.1' }} {{ $worksheet->device->resolution_unit ?? '°C' }}</td>
+            <td>{{ $worksheet->device_resolution ?? '—' }} {{ $worksheet->range_unit ?? '°C' }}</td>
         </tr>
         <tr>
             <td class="label-cell">Rentang Ukur</td>
-            <td colspan="3">{{ $worksheet->device->range_min ?? '0.1' }} s/d {{ $worksheet->device->range_max ?? '134' }} {{ $worksheet->device->range_unit ?? '°C' }}</td>
+            <td colspan="3">{{ $worksheet->range_min ?? '—' }} s/d {{ $worksheet->range_max ?? '—' }} {{ $worksheet->range_unit ?? '°C' }}</td>
         </tr>
     </table>
 
@@ -361,7 +361,53 @@
     </div>
 
     {{-- 8. Kesimpulan --}}
-    <div class="section-title">8. KESIMPULAN</div>
+    <div class="section-title">8. KETIDAKPASTIAN PENGUKURAN</div>
+    <table class="data-table" style="margin-bottom: 10px;">
+        <thead>
+            <tr><th class="text-left" style="width:35%;">Parameter</th><th>Satuan</th><th>uc</th><th>veff</th><th>k</th><th>U (k·uc)</th></tr>
+        </thead>
+        <tbody>
+            @forelse($worksheet->uncertaintyBudgets as $budget)
+            <tr>
+                <td class="text-left">{{ $budget->label }}</td>
+                <td>{{ $budget->unit }}</td>
+                <td>{{ number_format((float) $budget->uc, 6) }}</td>
+                <td>{{ number_format((float) $budget->veff, 2) }}</td>
+                <td>{{ number_format((float) $budget->coverage_factor, 4) }}</td>
+                <td>{{ number_format((float) $budget->expanded_uncertainty, 4) }}</td>
+            </tr>
+            @empty
+            <tr><td colspan="6" class="center">Belum dihitung</td></tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    @foreach($worksheet->uncertaintyBudgets as $budget)
+        @if($budget->components->isNotEmpty())
+        <div class="bold" style="margin: 6px 0 3px 0; font-size: 8.5pt;">Rincian: {{ $budget->label }}</div>
+        <table class="data-table" style="margin-bottom: 8px;">
+            <thead>
+                <tr><th class="text-left" style="width:30%;">Komponen</th><th>Distribusi</th><th>Nilai</th><th>Divisor</th><th>v</th><th>c</th><th>u<sub>i</sub></th></tr>
+            </thead>
+            <tbody>
+                @foreach($budget->components as $component)
+                <tr>
+                    <td class="text-left">{{ $component->component_name }}</td>
+                    <td>{{ $component->distribution }}</td>
+                    <td>{{ number_format((float) $component->u_value, 6) }}</td>
+                    <td>{{ number_format((float) $component->divisor, 4) }}</td>
+                    <td>{{ number_format((float) $component->degrees_of_freedom, 2) }}</td>
+                    <td>{{ number_format((float) $component->sensitivity_coefficient, 4) }}</td>
+                    <td>{{ number_format((float) $component->u_contribution, 6) }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @endif
+    @endforeach
+
+    {{-- 9. Kesimpulan --}}
+    <div class="section-title">9. KESIMPULAN</div>
     <table style="margin: 10px 0;">
         <tr>
             <td style="border:none; text-align:center; padding: 10px;">
@@ -372,8 +418,8 @@
         </tr>
     </table>
 
-    {{-- 9. Keterangan --}}
-    <div class="section-title">9. KETERANGAN</div>
+    {{-- 10. Keterangan --}}
+    <div class="section-title">10. KETERANGAN</div>
     <table>
         <tr><td style="border:none; vertical-align:top; width:20px;">1.</td><td style="border:none; font-size:8pt;">Kalibrasi menggunakan Instruksi Kerja (RKS/MT/IK.01-010) yang mengacu ke Keputusan Direktur Jendral Pelayanan Kesehatan Nomor: HK.02.02/D/43649/2024, Metode Kerja Pengujian dan Kalibrasi Alat Kesehatan, Kementrian Kesehatan RI</td></tr>
         <tr><td style="border:none; vertical-align:top;">2.</td><td style="border:none; font-size:8pt;">Nilai Ketidakpastian pengukuran mempunyai tingkat kepercayaan 95% dengan factor cakupan k = 2</td></tr>

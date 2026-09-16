@@ -3,6 +3,7 @@
 namespace App\Filament\Dashboard\Resources\CalibrationWorksheets;
 
 use App\Filament\Dashboard\Resources\CalibrationWorksheets\Pages\CreateCalibrationWorksheet;
+use App\Filament\Dashboard\Resources\CalibrationWorksheets\Pages\EditCalibrationWorksheet;
 use App\Filament\Dashboard\Resources\CalibrationWorksheets\Pages\ListCalibrationWorksheets;
 use App\Filament\Dashboard\Resources\CalibrationWorksheets\Pages\ViewCalibrationWorksheet;
 use App\Filament\Dashboard\Resources\CalibrationWorksheets\Schemas\CalibrationWorksheetForm;
@@ -17,6 +18,13 @@ use Filament\Tables\Table;
 
 class CalibrationWorksheetResource extends Resource
 {
+    /**
+     * Bump when the calculation engine changes in a way that would alter a
+     * previously issued score. Stored on each worksheet so old certificates
+     * stay reproducible.
+     */
+    public const ENGINE_VERSION = '1.0.0';
+
     protected static ?string $model = CalibrationWorksheet::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ClipboardDocumentList;
@@ -67,6 +75,7 @@ class CalibrationWorksheetResource extends Resource
             'index' => ListCalibrationWorksheets::route('/'),
             'create' => CreateCalibrationWorksheet::route('/create'),
             'view' => ViewCalibrationWorksheet::route('/{record}'),
+            'edit' => EditCalibrationWorksheet::route('/{record}/edit'),
         ];
     }
 }

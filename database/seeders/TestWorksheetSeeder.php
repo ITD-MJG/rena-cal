@@ -2,11 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Calibration\WorksheetHydrator;
 use App\Models\Brand;
-use App\Models\CalibrationElectricalSafetyTest;
 use App\Models\CalibrationInstrument;
-use App\Models\CalibrationPerformanceMeasurement;
-use App\Models\CalibrationPhysicalInspection;
 use App\Models\CalibrationWorksheet;
 use App\Models\Customer;
 use App\Models\Device;
@@ -16,6 +14,11 @@ use App\Models\Type;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
+/**
+ * Reproduces AUTOCLAVE_A250705-510: the reference worksheet from
+ * Autoclave.xlsx. Inputs are the raw cell values from LEMBAR KERJA; every
+ * derived value is produced by the calculation engine, never seeded.
+ */
 class TestWorksheetSeeder extends Seeder
 {
     public function run(): void
@@ -48,9 +51,13 @@ class TestWorksheetSeeder extends Seeder
             ]
         );
 
+        // LEMBAR KERJA F11: device resolution 0.1 °C.
         $worksheet = CalibrationWorksheet::create([
             'device_id' => $device->id,
             'service_id' => $service->id,
+            'template_key' => 'autoclave',
+            'template_version' => '2024.1',
+            'engine_version' => '1.0.0',
             'calibration_room' => 'STERILISASI',
             'received_date' => '2026-07-02',
             'calibration_date' => '2026-07-02',
@@ -61,21 +68,29 @@ class TestWorksheetSeeder extends Seeder
             'humidity_start' => 55.0,
             'humidity_end' => 56.0,
             'main_voltage' => 222.0,
-            'conclusion' => 'Tidak Laik Pakai',
-            'total_score' => 60.00,
+            'device_resolution' => 0.1,
         ]);
 
-        // Instruments
+        // Builds the six physical inspections, four electrical tests and two
+        // performance parameters (with three readings each) from the template.
+        app(WorksheetHydrator::class)->hydrate($worksheet);
+
+        // Standard instruments. `role` binds each to the budget that consumes
+        // its certificate. Regression data is SERT. DATA LOGGER!C33/C34 and
+        // SERTIFIKAT ESA!J125/J126 for the insulation test.
         CalibrationInstrument::create([
             'worksheet_id' => $worksheet->id,
+            'role' => 'esa',
             'name' => 'Electrical Safety Analyzer',
             'brand' => 'RIGEL',
             'type' => '288 PLUS',
             'serial_number' => '17Q-1323',
             'traceability' => 'LK-032-IDN',
+            'correction_data' => ['slope' => 0.98773096942095, 'intercept' => -0.031262199089135],
         ]);
         CalibrationInstrument::create([
             'worksheet_id' => $worksheet->id,
+            'role' => 'thermohygrometer',
             'name' => 'Thermohygrometer',
             'brand' => '-',
             'type' => 'HTC-1',
@@ -84,86 +99,65 @@ class TestWorksheetSeeder extends Seeder
         ]);
         CalibrationInstrument::create([
             'worksheet_id' => $worksheet->id,
+            'role' => 'data_logger',
             'name' => 'High Temperature Data Logger',
             'brand' => 'MADGETECH',
             'type' => 'HiTemp140',
             'serial_number' => 'T53884',
             'traceability' => 'AC-2481',
+            // SERT. DATA LOGGER!H15 = 0.036, C33/C34 regression.
+            'correction_data' => [
+                'u' => 0.036,
+                'slope' => 1.0000817958739,
+                'intercept' => -0.0074538762156067,
+            ],
+        ]);
+        CalibrationInstrument::create([
+            'worksheet_id' => $worksheet->id,
+            'role' => 'stopwatch',
+            'name' => 'Stopwatch',
+            'brand' => '-',
+            'type' => 'Digital',
+            'serial_number' => 'RKS-SW-001',
+            'traceability' => 'LK-100-IDN',
+            // SERTIFIKAT STOPWATCH!K13 = 0.029.
+            'correction_data' => ['u' => 0.029, 'slope' => 1.0, 'intercept' => 0.0],
         ]);
 
-        // Physical inspections (6 fixed parameters)
-        $inspections = [
-            ['Badan dan permukaan', 'Selungkup utuh, bersih, terpasang ketat', true],
-            ['Kotak Kontak Alat', 'Tidak ada gangguan pada kotak kontak', true],
-            ['Kabel Catu Utama', 'Tidak ada kerusakan atau isolasi terkelupas', true],
-            ['Sekering pengaman', 'Nilai tahanan dan tipe sesuai spesifikasi', true],
-            ['Tombol, saklar dan control', 'Posisi kontrol sesuai', true],
-            ['Tampilan dan indikator', 'Lampu indikator dan tampilan berfungsi', true],
-        ];
+        // Physical inspections: all six "baik" (LEMBAR KERJA K29:N34).
+        $worksheet->physicalInspections()->update(['result' => true]);
 
-        foreach ($inspections as $i => [$name, $desc, $result]) {
-            CalibrationPhysicalInspection::create([
-                'worksheet_id' => $worksheet->id,
-                'parameter_index' => $i + 1,
-                'parameter_name' => $name,
-                'description' => $desc,
-                'result' => $result,
-            ]);
+        // Electrical: P43=0.118 Ω, P44=25 µA, P45 unmeasured ("-"), P46=100 MΩ.
+        // The unmeasured row is what makes W38 award zero — reproduced here.
+        $electricalValues = [1 => 0.118, 2 => 25.0, 3 => null, 4 => 100.0];
+        foreach ($electricalValues as $index => $value) {
+            $worksheet->electricalSafetyTests()
+                ->where('parameter_index', $index)
+                ->update(['raw_value' => $value]);
         }
 
-        // Electrical safety tests
-        $tests = [
-            ['parameter_name' => 'Resistansi pembumian Kabel dapat dilepas (DPS)', 'measurement_method' => null, 'raw_value' => 0.118, 'unit' => 'Ω', 'certificate_correction' => -0.0327, 'threshold_operator' => '≤', 'threshold_value' => 0.3, 'threshold_unit' => 'Ω', 'result' => 'Memenuhi', 'weight' => 0],
-            ['parameter_name' => 'Arus bocor peralatan metode Langsung kelas I tipe B', 'measurement_method' => 'Langsung', 'raw_value' => 25, 'unit' => 'µA', 'certificate_correction' => 5.5, 'threshold_operator' => '≤', 'threshold_value' => 500, 'threshold_unit' => 'µA', 'result' => 'Memenuhi', 'weight' => 0],
-            ['parameter_name' => 'Resistansi Isolasi', 'measurement_method' => null, 'raw_value' => 100, 'unit' => 'MΩ', 'certificate_correction' => -5.95, 'threshold_operator' => '>', 'threshold_value' => 2, 'threshold_unit' => 'MΩ', 'result' => 'Memenuhi', 'weight' => 0],
-        ];
+        // Performance: temperature setting 134 °C, readings 135.6/135.7/135.7
+        // (LEMBAR KERJA M57/Q57/U57). Time readings are the setting, 3 minutes.
+        $temperature = $worksheet->performanceMeasurements()->where('parameter_index', 1)->first();
+        $temperature->update(['setting_value' => 134.0]);
+        $temperature->readings()->orderBy('sort_order')->get()->each(
+            fn ($reading, $i) => $reading->update(['value' => [135.6, 135.7, 135.7][$i]])
+        );
 
-        foreach ($tests as $test) {
-            CalibrationElectricalSafetyTest::create(array_merge($test, ['worksheet_id' => $worksheet->id]));
-        }
+        $time = $worksheet->performanceMeasurements()->where('parameter_index', 2)->first();
+        $time->update(['setting_value' => 3.0]);
+        $time->readings()->update(['value' => 3.0]);
 
-        // Performance measurements
-        CalibrationPerformanceMeasurement::create([
-            'worksheet_id' => $worksheet->id,
-            'parameter_name' => 'Akurasi Temperatur',
-            'setting_value' => 134,
-            'setting_unit' => '°C',
-            'measurement_1' => 135.6,
-            'measurement_2' => 135.7,
-            'measurement_3' => 135.7,
-            'mean' => 135.6667,
-            'std_dev' => 0.0577,
-            'corrected_mean' => 135.6703,
-            'correction' => 1.6703,
-            'uncertainty_u95' => 0.0686,
-            'total_correction_u95' => 0.0686,
-            'allowed_deviation' => '± 2 °C',
-            'tolerance' => 2.00,
-            'result' => 'Lulus',
-            'weight' => 50,
-        ]);
-
-        CalibrationPerformanceMeasurement::create([
-            'worksheet_id' => $worksheet->id,
-            'parameter_name' => 'Akurasi Waktu',
-            'setting_value' => 3,
-            'setting_unit' => 'menit',
-            'measurement_1' => 3,
-            'measurement_2' => 3,
-            'measurement_3' => 3,
-            'mean' => 3,
-            'std_dev' => 0,
-            'corrected_mean' => 3,
-            'correction' => 0,
-            'uncertainty_u95' => 0,
-            'total_correction_u95' => 0,
-            'allowed_deviation' => '≥ 3 menit',
-            'tolerance' => 3.00,
-            'result' => 'Lulus',
-            'weight' => 50,
-        ]);
+        $result = $worksheet->recalculate();
 
         $this->command->info("Test worksheet created: ID {$worksheet->id}");
-        $this->command->info("Preview at: /test-certificate/{$worksheet->id}");
+        $this->command->info(sprintf(
+            'Fisik %s/10 · Listrik %s/40 · Kinerja %s/50 · Total %s/100 → %s',
+            $result['physical_score'],
+            $result['electrical_score'],
+            $result['performance_score'],
+            $result['total_score'],
+            $result['conclusion'],
+        ));
     }
 }

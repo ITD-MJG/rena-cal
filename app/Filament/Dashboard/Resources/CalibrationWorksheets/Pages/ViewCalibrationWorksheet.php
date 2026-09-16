@@ -15,6 +15,11 @@ class ViewCalibrationWorksheet extends ViewRecord
     {
         return [
             Actions\EditAction::make(),
+            Actions\Action::make('recalculate')
+                ->label('Hitung Ulang')
+                ->icon('heroicon-m-arrow-path')
+                ->requiresConfirmation()
+                ->action(fn () => $this->record->recalculate()),
             Actions\Action::make('generateCertificate')
                 ->label('Generate Sertifikat')
                 ->icon('heroicon-m-document-arrow-down')
@@ -29,7 +34,8 @@ class ViewCalibrationWorksheet extends ViewRecord
                         'instruments',
                         'physicalInspections',
                         'electricalSafetyTests',
-                        'performanceMeasurements',
+                        'performanceMeasurements.readings',
+                        'uncertaintyBudgets.components',
                     ]);
 
                     $pdf = Pdf::loadView('pdf.certificate', ['worksheet' => $worksheet])

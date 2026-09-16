@@ -2,17 +2,21 @@
 
 namespace App\Filament\Dashboard\Resources\CalibrationWorksheets\Schemas;
 
+use App\Calibration\TemplateRegistry;
+use App\Models\User;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Wizard;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 
 class CalibrationWorksheetForm
 {
@@ -22,7 +26,7 @@ class CalibrationWorksheetForm
             ->components([
                 Wizard::make([
                     // ─── Step 1: Administrasi ───
-                    Wizard\Step::make('Administrasi')
+                    Step::make('Administrasi')
                         ->icon(Heroicon::ClipboardDocumentCheck)
                         ->schema([
                             Select::make('device_id')
@@ -34,6 +38,12 @@ class CalibrationWorksheetForm
                                     fn ($record) => "{$record->device_number} — {$record->deviceName?->name} ({$record->brand?->name})"
                                 )
                                 ->required(),
+                            Select::make('template_key')
+                                ->label('Jenis Alat')
+                                ->options(fn () => app(TemplateRegistry::class)->options())
+                                ->default('autoclave')
+                                ->required()
+                                ->live(),
                             Select::make('service_id')
                                 ->label('Nama Pelayanan')
                                 ->relationship('service', 'name')
@@ -42,14 +52,6 @@ class CalibrationWorksheetForm
                                 ->createOptionForm([
                                     TextInput::make('name')->required(),
                                 ])
-                                ->visible(fn () => auth()->user()->hasRole(['Super Admin', 'Admin']))
-                                ->required(),
-                            Select::make('service_id')
-                                ->label('Nama Pelayanan')
-                                ->relationship('service', 'name')
-                                ->searchable()
-                                ->preload()
-                                ->visible(fn () => ! auth()->user()->hasRole(['Super Admin', 'Admin']))
                                 ->required(),
                             TextInput::make('calibration_room')
                                 ->label('Ruangan Kalibrasi')
@@ -75,11 +77,16 @@ class CalibrationWorksheetForm
                                 ->placeholder('RKS/MT/IK.01-010'),
                             Placeholder::make('technician_name')
                                 ->label('Pelaksana Teknis')
-                                ->content(fn () => auth()->user()->name),
+                                ->content(function () {
+                                    /** @var User|null $user */
+                                    $user = Auth::user();
+
+                                    return $user?->name ?? '—';
+                                }),
                         ]),
 
                     // ─── Step 2: Alat Ukur ───
-                    Wizard\Step::make('Alat Ukur')
+                    Step::make('Alat Ukur')
                         ->icon(Heroicon::WrenchScrewdriver)
                         ->schema([
                             Repeater::make('instruments')
@@ -102,11 +109,14 @@ class CalibrationWorksheetForm
                                 ->columns(1)
                                 ->defaultItems(1)
                                 ->addActionLabel('Tambah Alat'),
+                            // Instruments may be entered during creation;
+                            // the other repeaters are hydration-owned.
+                            // (see dehydrated() below)
                         ]),
 
                     // ─── Step 3: Kondisi Lingkungan ───
-                    Wizard\Step::make('Kondisi Lingkungan')
-                        ->icon(Heroicon::Thermometer)
+                    Step::make('Kondisi Lingkungan')
+                        ->icon(Heroicon::Fire)
                         ->schema([
                             Section::make('Suhu dan Kelembaban')
                                 ->schema([
@@ -141,11 +151,17 @@ class CalibrationWorksheetForm
                         ]),
 
                     // ─── Step 4: Pemeriksaan Fisik ───
-                    Wizard\Step::make('Pemeriksaan Fisik')
+                    Step::make('Pemeriksaan Fisik')
                         ->icon(Heroicon::Eye)
+                        ->visible(fn ($record) => $record !== null)
                         ->schema([
                             Repeater::make('physicalInspections')
                                 ->relationship()
+                                ->dehydrated(fn ($record) => $record !== null)
+                                // Rows are seeded by WorksheetHydrator after
+                                // create, so the create form must not spawn a
+                                // blank item (Filament's default is 1).
+                                ->defaultItems(0)
                                 ->schema([
                                     TextInput::make('parameter_name')
                                         ->label('Parameter')
@@ -161,20 +177,26 @@ class CalibrationWorksheetForm
                                         ->inline(false)
                                         ->onColor('success')
                                         ->offColor('danger')
-                                        ->icons(true),
+                                        ->onIcon(Heroicon::CheckCircle)
+                                        ->offIcon(Heroicon::XCircle),
                                 ])
-                                ->columns(1)
-                                ->disabled(),
+                                ->columns(1),
                             Placeholder::make('physical_inspection_note')
                                 ->content('Pemeriksaan fisik bersifat standar. Toggle result untuk setiap parameter.'),
                         ]),
 
                     // ─── Step 5: Keselamatan Listrik ───
-                    Wizard\Step::make('Keselamatan Listrik')
+                    Step::make('Keselamatan Listrik')
                         ->icon(Heroicon::Bolt)
+                        ->visible(fn ($record) => $record !== null)
                         ->schema([
                             Repeater::make('electricalSafetyTests')
                                 ->relationship()
+                                ->dehydrated(fn ($record) => $record !== null)
+                                // Rows are seeded by WorksheetHydrator after
+                                // create, so the create form must not spawn a
+                                // blank item (Filament's default is 1).
+                                ->defaultItems(0)
                                 ->schema([
                                     TextInput::make('parameter_name')
                                         ->label('Parameter')
@@ -199,23 +221,28 @@ class CalibrationWorksheetForm
                                             ->label('Nilai Terukur')
                                             ->numeric()
                                             ->step(0.001)
-                                            ->required(),
+                                            ->helperText('Kosongkan bila parameter tidak diaplikasikan pada alat ini.'),
                                         TextInput::make('unit')
                                             ->label('Satuan')
                                             ->disabled()
                                             ->dehydrated(),
                                     ]),
                                 ])
-                                ->columns(1)
-                                ->disabled(),
+                                ->columns(1),
                         ]),
 
                     // ─── Step 6: Pengukuran Kinerja ───
-                    Wizard\Step::make('Pengukuran Kinerja')
+                    Step::make('Pengukuran Kinerja')
                         ->icon(Heroicon::ChartBar)
+                        ->visible(fn ($record) => $record !== null)
                         ->schema([
                             Repeater::make('performanceMeasurements')
                                 ->relationship()
+                                ->dehydrated(fn ($record) => $record !== null)
+                                // Rows are seeded by WorksheetHydrator after
+                                // create, so the create form must not spawn a
+                                // blank item (Filament's default is 1).
+                                ->defaultItems(0)
                                 ->schema([
                                     TextInput::make('parameter_name')
                                         ->label('Parameter')
@@ -235,55 +262,69 @@ class CalibrationWorksheetForm
                                             ->disabled()
                                             ->dehydrated(),
                                     ]),
-                                    Grid::make(3)->schema([
-                                        TextInput::make('measurement_1')
-                                            ->label('Pembacaan 1')
-                                            ->numeric()
-                                            ->step(0.01)
-                                            ->required(),
-                                        TextInput::make('measurement_2')
-                                            ->label('Pembacaan 2')
-                                            ->numeric()
-                                            ->step(0.01)
-                                            ->required(),
-                                        TextInput::make('measurement_3')
-                                            ->label('Pembacaan 3')
-                                            ->numeric()
-                                            ->step(0.01)
-                                            ->required(),
-                                    ]),
+                                    Repeater::make('readings')
+                                        ->relationship()
+                                        ->label('Hasil Pengukuran')
+                                        ->schema([
+                                            TextInput::make('point_label')
+                                                ->label('Pembacaan')
+                                                ->disabled()
+                                                ->dehydrated(),
+                                            TextInput::make('value')
+                                                ->label('Nilai')
+                                                ->numeric()
+                                                ->step(0.01),
+                                        ])
+                                        ->columns(2)
+                                        ->addable(false)
+                                        ->deletable(false)
+                                        ->reorderable(false)
+                                        ->visible(fn ($record) => $record !== null),
                                 ])
                                 ->columns(1),
                         ]),
 
                     // ─── Step 7: Kesimpulan ───
-                    Wizard\Step::make('Kesimpulan')
+                    Step::make('Kesimpulan')
                         ->icon(Heroicon::CheckCircle)
+                        ->visible(fn ($record) => $record !== null)
                         ->schema([
-                            Placeholder::make('total_score')
-                                ->label('Total Skor')
-                                ->content(fn ($record) => $record?->computeTotalScore() ?? '—'),
-                            Placeholder::make('physical_score')
-                                ->label('Skor Pemeriksaan Fisik')
-                                ->content(fn ($record) => $record?->physical_inspection_score.' / 60' ?? '—'),
-                            Placeholder::make('electrical_score')
-                                ->label('Skor Keselamatan Listrik')
-                                ->content(fn ($record) => $record?->electrical_safety_score.' / 60' ?? '—'),
-                            Placeholder::make('performance_score')
-                                ->label('Skor Pengukuran Kinerja')
-                                ->content(fn ($record) => $record?->performance_score.' / 100' ?? '—'),
+                            Placeholder::make('score_summary')
+                                ->label('Rekapitulasi Skor')
+                                ->content(function ($record) {
+                                    if ($record === null) {
+                                        return 'Simpan lembar kerja untuk menghitung skor.';
+                                    }
+
+                                    $snapshot = $record->calculation_snapshot ?? [];
+
+                                    if ($snapshot === []) {
+                                        return 'Belum dihitung.';
+                                    }
+
+                                    return sprintf(
+                                        'Fisik %s/10 · Listrik %s/40 · Kinerja %s/50 · Total %s/100 (ambang %s)',
+                                        $snapshot['physical_score'] ?? '—',
+                                        $snapshot['electrical_score'] ?? '—',
+                                        $snapshot['performance_score'] ?? '—',
+                                        $snapshot['total_score'] ?? '—',
+                                        $snapshot['threshold'] ?? '—',
+                                    );
+                                }),
                             Select::make('conclusion')
                                 ->label('Kesimpulan')
                                 ->options([
                                     'Laik Pakai' => 'Laik Pakai',
                                     'Tidak Laik Pakai' => 'Tidak Laik Pakai',
                                 ])
+                                ->disabled()
+                                ->dehydrated()
                                 ->default(fn ($record) => $record?->computeConclusion()),
                         ]),
                 ])
                     ->skippable()
                     ->persistStepInQueryString()
-                    ->submitAction(view('filament::components.wizard.submit-button')),
+                    ->submitAction('Simpan'),
             ]);
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Filament\Dashboard\Resources\CalibrationWorksheets\Schemas;
 
 use Filament\Infolists\Components\IconEntry;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class CalibrationWorksheetInfolist
@@ -78,9 +78,10 @@ class CalibrationWorksheetInfolist
                             ->formatStateUsing(fn ($state, $record) => $record->physicalInspections->map(
                                 fn ($p) => "{$p->parameter_name}: ".($p->result ? 'Baik' : 'Tidak Baik')
                             )->implode("\n")),
-                        TextEntry::make('physical_inspection_score')
+                        TextEntry::make('physical_score')
                             ->label('Skor')
-                            ->suffix(' / 60'),
+                            ->state(fn ($record) => ($record->calculation_snapshot['physical_score'] ?? null))
+                            ->suffix(' / 10'),
                     ]),
 
                 // ─── Keselamatan Listrik ───
@@ -92,9 +93,10 @@ class CalibrationWorksheetInfolist
                             ->formatStateUsing(fn ($state, $record) => $record->electricalSafetyTests->map(
                                 fn ($t) => "{$t->parameter_name}: {$t->raw_value} {$t->unit} → {$t->result}"
                             )->implode("\n")),
-                        TextEntry::make('electrical_safety_score')
+                        TextEntry::make('electrical_score')
                             ->label('Skor')
-                            ->suffix(' / 60'),
+                            ->state(fn ($record) => ($record->calculation_snapshot['electrical_score'] ?? null))
+                            ->suffix(' / 40'),
                     ]),
 
                 // ─── Pengukuran Kinerja ───
@@ -105,11 +107,19 @@ class CalibrationWorksheetInfolist
                             ->listWithLineBreaks()
                             ->formatStateUsing(fn ($state, $record) => $record->performanceMeasurements->map(
                                 fn ($m) => "{$m->parameter_name} ({$m->setting_value}{$m->setting_unit}): "
-                                    ."{$m->measurement_1}, {$m->measurement_2}, {$m->measurement_3} → Mean: {$m->mean} → {$m->result}"
+                                    .$m->readings->pluck('value')->implode(', ')
+                                    ." → Rata-rata: {$m->mean} → {$m->result}"
                             )->implode("\n")),
                         TextEntry::make('performance_score')
                             ->label('Skor')
-                            ->suffix(' / 100'),
+                            ->state(fn ($record) => ($record->calculation_snapshot['performance_score'] ?? null))
+                            ->suffix(' / 50'),
+                        TextEntry::make('uncertainty_summary')
+                            ->label('Ketidakpastian Terekspansi (k=2)')
+                            ->listWithLineBreaks()
+                            ->state(fn ($record) => collect($record->calculation_snapshot['uncertainty'] ?? [])
+                                ->map(fn ($b, $key) => "{$key}: uc={$b['uc']} U={$b['u']}")
+                                ->values()),
                     ]),
 
                 // ─── Kesimpulan ───
@@ -117,7 +127,8 @@ class CalibrationWorksheetInfolist
                     ->schema([
                         TextEntry::make('total_score')
                             ->label('Total Skor')
-                            ->suffix(' / 220'),
+                            ->state(fn ($record) => ($record->calculation_snapshot['total_score'] ?? null))
+                            ->suffix(fn ($record) => ' / 100 (ambang '.($record->calculation_snapshot['threshold'] ?? 90).')'),
                         IconEntry::make('conclusion')
                             ->label('Kesimpulan')
                             ->boolean()

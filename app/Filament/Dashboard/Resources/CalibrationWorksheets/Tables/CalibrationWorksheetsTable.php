@@ -2,9 +2,10 @@
 
 namespace App\Filament\Dashboard\Resources\CalibrationWorksheets\Tables;
 
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\ViewAction;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -30,6 +31,10 @@ class CalibrationWorksheetsTable
                 TextColumn::make('technician_name')
                     ->label('Teknisi')
                     ->searchable(),
+                TextColumn::make('total_score')
+                    ->label('Skor')
+                    ->numeric(decimalPlaces: 2)
+                    ->sortable(),
                 TextColumn::make('conclusion')
                     ->label('Kesimpulan')
                     ->badge()
@@ -47,10 +52,15 @@ class CalibrationWorksheetsTable
             ->filters([
                 //
             ])
-            ->actions([
+            ->recordActions([
                 ViewAction::make(),
+                Action::make('recalculate')
+                    ->label('Hitung Ulang')
+                    ->icon('heroicon-o-arrow-path')
+                    ->requiresConfirmation()
+                    ->action(fn ($record) => $record->recalculate()),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

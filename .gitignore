@@ -23,11 +23,5 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 .github/*
-boost.json
 app/Providers/AppServiceProvider.php
-.gemini
-GEMINI.md
 .htaccess
-*.xlsx
-*.pdf
-.~lock.*
