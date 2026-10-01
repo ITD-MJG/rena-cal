@@ -122,3 +122,13 @@ it('saves an edit without re-uploading the workbook', function () {
 
     expect($worksheet->fresh()->cert_number)->toBe('NEW');
 });
+
+it('stores the uploaded filename, not the temporary path', function () {
+    Livewire::actingAs(actingAdmin())
+        ->test(CreateWorksheet::class)
+        ->fillForm(['file' => fakeWorkbook()])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Worksheet::firstOrFail()->original_filename)->toBe('Autoclave.xlsx');
+});

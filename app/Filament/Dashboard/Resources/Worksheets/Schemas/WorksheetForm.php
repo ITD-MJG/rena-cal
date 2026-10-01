@@ -19,6 +19,7 @@ class WorksheetForm
                     ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'])
                     ->disk('public')
                     ->directory('worksheets')
+                    ->preserveFilenames()
                     // Only a create needs the workbook. On edit the stored file is
                     // not repopulated into this field, so requiring it would make
                     // every save fail unless the user re-uploaded the workbook.
