@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -39,6 +40,7 @@ class CustomerAdminCreatedNotification extends Notification
                 'signedUrl' => $this->signedUrl,
                 'name' => $notifiable->name,
                 'customerName' => $notifiable->customer?->name ?? 'your organization',
+                'defaultPassword' => User::DEFAULT_PASSWORD,
             ]);
     }
 

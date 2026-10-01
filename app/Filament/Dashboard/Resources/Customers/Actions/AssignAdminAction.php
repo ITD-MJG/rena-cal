@@ -3,12 +3,12 @@
 namespace App\Filament\Dashboard\Resources\Customers\Actions;
 
 use App\Models\User;
+use App\Notifications\CustomerAdminCreatedNotification;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Password;
 
 class AssignAdminAction
 {
@@ -61,8 +61,7 @@ class AssignAdminAction
                         ]);
 
                         $user->assignRole('Hospital Admin');
-                        $token = Password::broker()->createToken($user);
-                        $user->sendPasswordResetNotification($token);
+                        $user->notify(new CustomerAdminCreatedNotification($user->createLoginUrl()));
                     }
 
                     if ($user) {

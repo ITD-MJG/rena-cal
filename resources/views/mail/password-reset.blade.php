@@ -119,11 +119,15 @@
 
                                         <p>Your admin account for <strong>{{ $customerName }}</strong> has been successfully created.</p>
 
-                                        <p>To get started and log in to the system, you must first set your password by clicking the button below:</p>
+                                        <p>Your default password is:</p>
+
+                                        <p style="font-size: 18px; font-weight: bold; text-align: center; letter-spacing: 1px;">{{ $defaultPassword }}</p>
+
+                                        <p>You can log in immediately using the button below. We recommend changing your password afterwards from your profile page.</p>
 
                                         <div class="button-wrapper">
                                             <a href="{{ $signedUrl }}" class="button">
-                                                Set Password
+                                                Log In
                                             </a>
                                         </div>
 

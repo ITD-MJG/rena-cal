@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerAdminLoginController;
 use App\Livewire\Public\DeviceDetail;
 use App\Models\CalibrationWorksheet;
 use App\Models\Device;
@@ -17,6 +18,11 @@ Route::get('/devices/details/{deviceId}', DeviceDetail::class)->name('devices.sh
 Route::get('/devices/{deviceId}', function ($deviceId) {
     return redirect()->route('devices.show', ['deviceId' => $deviceId]);
 })->name('devices.publicDetail');
+
+// Log a newly assigned customer admin in from a signed email link
+Route::get('/customers/admin/login/{user}', CustomerAdminLoginController::class)
+    ->middleware('signed')
+    ->name('customers.admin.login');
 
 // Certificate download route
 Route::get('/certificate/download/{cert_number}', function (Request $request, $cert_number) {

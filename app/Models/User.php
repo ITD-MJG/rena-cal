@@ -3,7 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Notifications\CustomerAdminCreatedNotification;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -20,7 +19,7 @@ class User extends Authenticatable implements FilamentUser
     /** @use HasFactory<UserFactory> */
     use CanResetPassword, HasFactory, HasRoles, Notifiable;
 
-    public const DEFAULT_PASSWORD = 'Rena2025!';
+    public const DEFAULT_PASSWORD = 'Calibration2025!';
 
     public function canAccessPanel(Panel $panel): bool
     {
@@ -90,22 +89,14 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Send the password reset notification.
+     * Create a temporary signed URL that logs the user in on visit.
      */
-    /**
-     * Send the password reset notification.
-     */
-    public function sendPasswordResetNotification($token): void
+    public function createLoginUrl(): string
     {
-        $signedUrl = URL::temporarySignedRoute(
-            'filament.dashboard.auth.password-reset.reset',
-            now()->addMinutes(config('auth.passwords.users.expire')), // Adjust expiration as needed
-            [
-                'token' => $token,
-                'email' => $this->getEmailForPasswordReset(),
-            ]
+        return URL::temporarySignedRoute(
+            'customers.admin.login',
+            now()->addMinutes(config('auth.passwords.users.expire')),
+            ['user' => $this->getKey()],
         );
-
-        $this->notify(new CustomerAdminCreatedNotification($signedUrl));
     }
 }
