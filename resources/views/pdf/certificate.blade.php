@@ -6,7 +6,9 @@
     <style>
         * { margin: 0; padding: 0; }
         body { font-family: Arial, Helvetica, sans-serif; font-size: 9pt; color: #000; }
-        .page { width: 170mm; padding: 10mm 20mm; page-break-after: always; }
+        /* 45mm top = 35mm blank for the pre-printed letterhead + 10mm original margin.
+           The paper already carries the RENA header, so nothing is drawn there. */
+        .page { width: 170mm; padding: 45mm 20mm 10mm 20mm; page-break-after: always; }
         .page:last-child { page-break-after: avoid; }
 
         table { border-collapse: collapse; width: 100%; }
