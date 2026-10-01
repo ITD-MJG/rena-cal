@@ -1,160 +1,128 @@
 <?php
 
-use App\Calibration\WorksheetHydrator;
-use App\Models\CalibrationInstrument;
-use App\Models\CalibrationWorksheet;
+use App\Filament\Dashboard\Resources\Worksheets\Pages\ViewWorksheet;
 use App\Models\Customer;
 use App\Models\Device;
-use App\Models\DeviceName;
-use App\Models\Service;
+use App\Models\User;
+use App\Models\Worksheet;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
+use Livewire\Livewire;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
-/**
- * The certificate is the only artefact the customer ever sees, so the PDF must
- * carry the same numbers the engine computed.
- */
-function certifiedWorksheet(): CalibrationWorksheet
+beforeEach(function () {
+    foreach (['Super Admin', 'Admin', 'Hospital Admin', 'Technician'] as $role) {
+        Role::firstOrCreate(['name' => $role]);
+    }
+});
+
+function worksheetFixture(): Worksheet
 {
-    $service = Service::create(['name' => 'Instalasi sterilisasi pusat', 'slug' => 'sterilisasi']);
+    $customer = Customer::create([
+        'name' => 'Klinik Pratama Ocean Dental Radio Dalam',
+        'slug' => 'klinik-pratama-ocean-dental-radio-dalam',
+        'address' => 'Jl. Radio Dalam Raya No.26, Jakarta Selatan 12140',
+    ]);
 
-    $device = Device::create([
-        'deviceId' => Str::uuid(),
-        'device_number' => 'RENA-00001',
-        'order_number' => 'ORD-2026-0001',
-        'cert_number' => 'RKS/01/2026',
+    $device = Device::factory()->create([
         'serial_number' => 'A250705-510',
-        'device_name_id' => DeviceName::create(['name' => 'AUTOCLAVE', 'slug' => 'autoclave'])->id,
-        'customer_id' => Customer::create([
-            'name' => 'Klinik Pratama Ocean Dental Radio Dalam',
-            'slug' => 'klinik-pratama-ocean-dental-radio-dalam',
-        ])->id,
+        'customer_id' => $customer->id,
     ]);
 
-    $worksheet = CalibrationWorksheet::create([
+    return Worksheet::factory()->create([
         'device_id' => $device->id,
-        'service_id' => $service->id,
-        'template_key' => 'autoclave',
-        'template_version' => '2024.1',
-        'engine_version' => '1.0.0',
-        'calibration_room' => 'STERILISASI',
-        'received_date' => '2026-07-02',
-        'calibration_date' => '2026-07-02',
-        'technician_name' => 'MARSHEL ASYRAF DALTAFIKA',
-        'work_method' => 'RKS/MT/IK.01-010',
-        'device_resolution' => 0.1,
-        'range_min' => 0.1,
-        'range_max' => 134.0,
-        'range_unit' => '°C',
-    ]);
-
-    app(WorksheetHydrator::class)->hydrate($worksheet);
-
-    CalibrationInstrument::create([
-        'worksheet_id' => $worksheet->id,
-        'role' => 'data_logger',
-        'name' => 'High Temperature Data Logger',
-        'brand' => 'MADGETECH',
-        'type' => 'HiTemp140',
-        'serial_number' => 'DL-001',
-        'traceability' => 'LKS-2026-001',
-        'correction_data' => [
-            'u' => 0.036,
-            'slope' => 1.0000817958739,
-            'intercept' => -0.0074538762156067,
+        'cert_number' => 'RKS/26/3125',
+        'order_number' => '07260074',
+        'payload' => [
+            'device' => ['name' => 'AUTOCLAVE', 'brand' => 'LOKAL', 'type' => 'YA28X6T/8', 'serial' => 'A250705-510'],
+            'customer' => ['name' => 'Klinik Pratama Ocean Dental Radio Dalam'],
+            'service' => ['name' => 'Instalasi sterilisasi pusat'],
+            'calibration' => [
+                'room' => 'STERILISASI',
+                'technician' => 'MARSHEL ASYRAF DALTAFIKA',
+                'received_date' => '02 JUL 2026',
+                'calibration_date' => '02 JUL 2026',
+            ],
+            'environment' => [
+                'temperature' => ['value' => 24.55, 'uncert' => 0.63],
+                'humidity' => ['value' => 55.5, 'uncert' => 2.9],
+                'main_voltage' => 222,
+            ],
+            'instruments' => [
+                ['name' => 'Electrical Safety Analyzer', 'brand' => 'RIGEL', 'type' => '288 PLUS', 'serial' => '17Q-1323', 'traceability' => 'LK-032-IDN'],
+            ],
+            'physical' => [['parameter' => 'Badan dan permukaan', 'result' => 'Baik']],
+            'electrical' => [['parameter' => 'Resistansi pembumian', 'measured' => 0.08529005530253725, 'unit' => 'Ω', 'limit' => 0.3, 'limit_unit' => 'Ω']],
+            'performance' => [
+                'temperature' => [['setting' => 134, 'standard' => 135.67030976400375, 'correction' => 1.670309764003747, 'limit' => '± 2 °C']],
+                'temperature_uncertainty' => [['value' => 0.06855226743147864, 'unit' => '°C']],
+                'time' => [['setting' => 3, 'standard' => 3, 'correction' => 0, 'limit' => '≥ 3 menit']],
+                'time_uncertainty' => [['value' => 0, 'unit' => '°C']],
+            ],
+            'notes' => [['text' => 'Kalibrasi menggunakan Instruksi Kerja (RKS/MT/IK.01-010)']],
+            'conclusion' => 'Tidak Laik Pakai',
         ],
     ]);
-
-    $worksheet->physicalInspections()->update(['result' => true]);
-
-    $temperature = $worksheet->performanceMeasurements()->where('parameter_index', 1)->first();
-    $temperature->update(['setting_value' => 134.0]);
-    $temperature->readings()->orderBy('sort_order')->get()->each(
-        fn ($reading, $i) => $reading->update(['value' => [135.6, 135.7, 135.7][$i]])
-    );
-
-    $worksheet->recalculate();
-
-    return $worksheet->fresh();
 }
 
-function renderCertificate(CalibrationWorksheet $worksheet): string
-{
-    return view('pdf.certificate', [
-        'worksheet' => $worksheet->load([
-            'device.deviceName',
-            'device.brand',
-            'device.type',
-            'device.customer',
-            'service',
-            'instruments',
-            'physicalInspections',
-            'electricalSafetyTests',
-            'performanceMeasurements.readings',
-            'uncertaintyBudgets.components',
-        ]),
-    ])->render();
-}
+it('renders the view page', function () {
+    $worksheet = worksheetFixture();
+    $user = User::factory()->create();
+    $user->assignRole('Super Admin');
 
-it('renders every section of the calibration certificate', function () {
-    $html = renderCertificate(certifiedWorksheet());
+    Livewire::actingAs($user)
+        ->test(ViewWorksheet::class, ['record' => $worksheet->getRouteKey()])
+        ->assertSuccessful()
+        ->assertSee('A250705-510');
+});
+
+it('renders a three page certificate from the stored payload', function () {
+    $worksheet = worksheetFixture()->load('device.customer');
+
+    $dompdf = Pdf::loadView('pdf.certificate', ['worksheet' => $worksheet])
+        ->setPaper('a4', 'portrait')
+        ->getDomPDF();
+    $dompdf->render();
+
+    expect($dompdf->output())->toStartWith('%PDF')
+        ->and($dompdf->getCanvas()->get_page_count())->toBe(3);
+});
+
+it('carries the workbook values into the certificate', function () {
+    $worksheet = worksheetFixture()->load('device.customer');
+
+    $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
 
     expect($html)
-        ->toContain('SERTIFIKAT KALIBRASI')
-        ->toContain('RKS/01/2026')
-        ->toContain('ORD-2026-0001')
-        ->toContain('RENA-00001')
+        ->toContain('RKS/26/3125')
+        ->toContain('07260074')
         ->toContain('A250705-510')
-        ->toContain('Klinik Pratama Ocean Dental Radio Dalam')
-        // Instrument table
-        ->toContain('High Temperature Data Logger')
-        ->toContain('MADGETECH')
-        // Inspection + electrical sections
-        ->toContain('PEMERIKSAAN KONDISI FISIK')
-        ->toContain('PENGUKURAN KESELAMATAN LISTRIK')
-        // Uncertainty budget plus its component breakdown
-        ->toContain('KETIDAKPASTIAN PENGUKURAN')
-        ->toContain('Rincian: Akurasi Temperature (134 °C)')
-        // Verdict
-        ->toContain('TIDAK LAIK PAKAI');
+        ->toContain('YA28X6T/8')
+        ->toContain('24.55')
+        // Rendered three decimals, trailing zeros trimmed: never the raw float.
+        ->toContain('135.67')
+        ->not->toContain('135.67030976400375')
+        ->toContain('TIDAK LAIK PAKAI')
+        ->toContain('Jl. Radio Dalam Raya');
 });
 
-it('prints the engine numbers rather than blanks', function () {
-    $worksheet = certifiedWorksheet();
-    $html = renderCertificate($worksheet);
+it('renders without error when the payload is null', function () {
+    $worksheet = Worksheet::factory()->create(['payload' => null]);
 
-    $budget = $worksheet->uncertaintyBudgets()->where('key', 'temperature_134')->first();
-
-    // The mean is derived from the readings, not stored by hand.
-    expect($html)
-        ->toContain(number_format((float) $budget->expanded_uncertainty, 4))
-        ->toContain(number_format((float) $budget->uc, 6))
-        // Resolusi now reads the worksheet, not a device column that no longer exists.
-        ->toContain('Resolusi')
-        ->not->toContain('0.1 s/d 134');
+    expect(view('pdf.certificate', ['worksheet' => $worksheet])->render())->toBeString();
 });
 
-it('produces a downloadable pdf', function () {
-    $worksheet = certifiedWorksheet();
+it('does not assert a verdict when the conclusion could not be read', function () {
+    // A null conclusion means the workbook cell was unreadable. Printing
+    // "TIDAK LAIK PAKAI" would declare the equipment unfit on no evidence.
+    $worksheet = Worksheet::factory()->create([
+        'payload' => ['device' => ['serial' => 'A250705-510'], 'conclusion' => null],
+    ]);
 
-    $pdf = Pdf::loadView('pdf.certificate', ['worksheet' => $worksheet->load([
-        'device.deviceName',
-        'device.brand',
-        'device.type',
-        'device.customer',
-        'service',
-        'instruments',
-        'physicalInspections',
-        'electricalSafetyTests',
-        'performanceMeasurements.readings',
-        'uncertaintyBudgets.components',
-    ])])->setPaper('a4', 'portrait');
+    $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
 
-    $output = $pdf->output();
-
-    expect($output)->toStartWith('%PDF-')
-        ->and(strlen($output))->toBeGreaterThan(10_000);
+    expect($html)->not->toContain('TIDAK LAIK PAKAI')
+        ->and($html)->not->toContain('LAIK PAKAI');
 });
