@@ -33,11 +33,18 @@
         .data-table td.text-left { text-align: left; }
         .data-table tr:nth-child(even) td { background: #f8f8f8; }
 
-        .page-num { text-align: center; font-size: 9pt; color: #000; padding-top: 5mm; border-top: 0.5px solid #ddd; margin-top: 5mm; }
+        /* The footer is position:fixed, so dompdf repeats it on every page and the
+           page number comes from the CSS page counter rather than a passed value. */
+        .pdf-footer { position: fixed; bottom: 0; left: 20mm; right: 20mm; }
+        .pdf-footer-page { text-align: right; font-size: 9pt; color: #000; }
+        .pdf-footer-counter::after { content: counter(page); }
+        .pdf-footer-rule { border-top: 1px solid #000; margin: 2mm 0; }
+        .pdf-footer-note { text-align: center; font-size: 8pt; color: #000; }
         .page-1 { font-size: 12pt; }
     </style>
 </head>
 <body>
+@include('pdf.partials.footer')
 @php
     $payload = $worksheet->payload ?? [];
     $conclusion = data_get($payload, 'conclusion');
@@ -68,8 +75,6 @@
 {{-- PAGE 1: COVER --}}
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 <div class="page page-1">
-    @include('pdf.partials.header')
-
     <div class="center" style="margin: 10px 0;">
         <div style="font-size: 13pt; font-weight: bold; text-decoration: underline;">SERTIFIKAT KALIBRASI</div>
         <div style="font-size: 9pt;">Nomor : {{ $worksheet->cert_number ?? '—' }}</div>
@@ -131,16 +136,12 @@
             </td>
         </tr>
     </table>
-
-    @include('pdf.partials.footer', ['pageNumber' => 1])
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 {{-- PAGE 2: SECTIONS 1-6 --}}
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 <div class="page">
-    @include('pdf.partials.header')
-
     {{-- 1. Identitas Alat --}}
     <div class="section-title">1. IDENTITAS ALAT</div>
     <table class="data-table">
@@ -230,16 +231,12 @@
             <tr><td colspan="4">—</td></tr>
         @endforelse
     </table>
-
-    @include('pdf.partials.footer', ['pageNumber' => 2])
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 {{-- PAGE 3: SECTIONS 7-10 --}}
 {{-- ═══════════════════════════════════════════════════════════════ --}}
 <div class="page">
-    @include('pdf.partials.header')
-
     {{-- 7. Hasil Kalibrasi --}}
     <div class="section-title">7. HASIL KALIBRASI</div>
 
@@ -303,8 +300,6 @@
             <tr><td style="border:none;">—</td></tr>
         @endforelse
     </table>
-
-    @include('pdf.partials.footer', ['pageNumber' => 3])
 </div>
 </body>
 </html>

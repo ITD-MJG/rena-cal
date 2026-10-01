@@ -1,2 +1,5 @@
-<div class="page-num">Halaman {{ $pageNumber ?? 1 }} dari {{ $totalPages ?? 3 }}</div>
-<div style="text-align:center; font-size:9pt; color:#000; margin-top:3mm;">Dilarang memperbanyak dan atau mempublikasikan sebagian isi Sertifikat ini tanpa izin PT Rena Kalibrindo Selaras</div>
+<div class="pdf-footer">
+    <div class="pdf-footer-page">Halaman <span class="pdf-footer-counter"></span> dari {{ $totalPages ?? 3 }}</div>
+    <hr class="pdf-footer-rule">
+    <div class="pdf-footer-note">Dilarang memperbanyak dan atau mempublikasikan sebagian isi Sertifikat ini tanpa izin PT Rena Kalibrindo Selaras</div>
+</div>

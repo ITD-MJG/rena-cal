@@ -126,3 +126,32 @@ it('does not assert a verdict when the conclusion could not be read', function (
     expect($html)->not->toContain('TIDAK LAIK PAKAI')
         ->and($html)->not->toContain('LAIK PAKAI');
 });
+
+it('omits the letterhead from every page', function () {
+    // The header partial carried the RENA logo and the company block. It is no
+    // longer rendered, so neither the company name nor the contact lines appear.
+    $worksheet = worksheetFixture();
+
+    $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
+
+    expect($html)
+        ->not->toContain('PT RENA KALIBRINDO SELARAS')
+        ->not->toContain('Jl. Pangeran Antasari')
+        ->not->toContain('admin@rena.co.id');
+});
+
+it('renders the page count and the copyright notice in the fixed footer', function () {
+    $worksheet = worksheetFixture();
+
+    $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
+
+    expect($html)
+        ->toContain('pdf-footer')
+        ->toContain('Halaman')
+        // The current page number comes from the CSS page counter, so the
+        // footer is repeated on every page rather than hardcoded per page.
+        ->toContain('counter(page)')
+        ->toContain('Dilarang memperbanyak dan atau mempublikasikan sebagian isi Sertifikat ini tanpa izin PT Rena Kalibrindo Selaras');
+
+    expect(substr_count($html, 'Dilarang memperbanyak'))->toBe(1);
+});
