@@ -28,7 +28,7 @@ class CellReader
         $value = self::firstFilled([
             fn () => $cell->getOldCalculatedValue(),
             fn () => self::recalculate($cell),
-            fn () => $cell->getValue(),
+            fn () => self::literal($cell),
         ]);
 
         if (is_string($value) && preg_match(self::ERROR, $value)) {
@@ -49,6 +49,21 @@ class CellReader
         } catch (Throwable) {
             return null;
         }
+    }
+
+    /**
+     * The literal value, but never a formula string: an unresolved formula is
+     * not a value, and returning it would store "='LEMBAR KERJA'!F8" as data.
+     */
+    private static function literal($cell): mixed
+    {
+        $value = $cell->getValue();
+
+        if (is_string($value) && str_starts_with($value, '=')) {
+            return null;
+        }
+
+        return $value;
     }
 
     /**
