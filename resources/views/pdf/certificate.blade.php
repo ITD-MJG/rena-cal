@@ -14,7 +14,8 @@
         table { border-collapse: collapse; width: 100%; }
         td, th { padding: 4px 6px; vertical-align: top; }
 
-        .section-title { font-weight: bold; font-size: 10pt; color: #003366; padding: 6px 0 3px 0; border-bottom: 1.5px solid #003366; margin-bottom: 6px; }
+        /* Top margin separates each numbered group from the table above it. */
+        .section-title { font-weight: bold; font-size: 10pt; color: #003366; padding: 6px 0 3px 0; border-bottom: 1.5px solid #003366; margin: 12px 0 6px 0; }
         .label-cell { background: #f0f0f0; font-weight: bold; width: 35%; font-size: 8.5pt; }
         .value-cell { font-size: 8.5pt; }
 
@@ -264,7 +265,7 @@
         </div>
     @endforeach
 
-    <div class="bold" style="margin: 8px 0 4px 0;">2. Akurasi Waktu</div>
+    <div class="bold" style="margin: 14px 0 4px 0;">2. Akurasi Waktu</div>
     <table class="data-table">
         <tr><th>Setting Alat (Menit)</th><th>Penunjukan Standar (Menit)</th><th>Koreksi (Menit)</th><th>Ambang Batas</th></tr>
         @forelse (data_get($payload, 'performance.time', []) as $row)

@@ -176,3 +176,13 @@ it('keeps the footer copyright clear of the paper edge', function () {
 
     expect($html)->toContain('padding-bottom: 10mm');
 });
+
+it('separates each numbered part group from the table above it', function () {
+    // Section titles ran straight into the previous table. The top margin
+    // gives every numbered group its own breathing room.
+    $worksheet = worksheetFixture();
+
+    $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
+
+    expect($html)->toContain('margin: 12px 0 6px 0');
+});
