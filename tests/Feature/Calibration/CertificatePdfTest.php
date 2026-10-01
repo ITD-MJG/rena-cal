@@ -113,3 +113,16 @@ it('renders without error when the payload is null', function () {
 
     expect(view('pdf.certificate', ['worksheet' => $worksheet])->render())->toBeString();
 });
+
+it('does not assert a verdict when the conclusion could not be read', function () {
+    // A null conclusion means the workbook cell was unreadable. Printing
+    // "TIDAK LAIK PAKAI" would declare the equipment unfit on no evidence.
+    $worksheet = Worksheet::factory()->create([
+        'payload' => ['device' => ['serial' => 'A250705-510'], 'conclusion' => null],
+    ]);
+
+    $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
+
+    expect($html)->not->toContain('TIDAK LAIK PAKAI')
+        ->and($html)->not->toContain('LAIK PAKAI');
+});

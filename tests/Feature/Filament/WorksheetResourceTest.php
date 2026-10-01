@@ -1,7 +1,9 @@
 <?php
 
 use App\Filament\Dashboard\Resources\Worksheets\Pages\CreateWorksheet;
+use App\Filament\Dashboard\Resources\Worksheets\Pages\EditWorksheet;
 use App\Filament\Dashboard\Resources\Worksheets\Pages\ListWorksheets;
+use App\Models\Customer;
 use App\Models\Device;
 use App\Models\User;
 use App\Models\Worksheet;
@@ -71,4 +73,52 @@ it('saves the record and warns when the workbook cannot be parsed', function () 
 
     expect(Worksheet::count())->toBe(1)
         ->and(Worksheet::first()->payload)->toBeNull();
+});
+
+it('denies a user with no role', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(ListWorksheets::class)
+        ->assertForbidden();
+});
+
+it('denies a hospital admin worksheets belonging to another customer', function () {
+    $otherCustomer = Customer::create([
+        'name' => 'Other Clinic',
+        'slug' => 'other-clinic',
+    ]);
+    $worksheet = Worksheet::factory()->create([
+        'customer_name' => 'Other Clinic',
+        'device_id' => Device::factory()->create(['customer_id' => $otherCustomer->id]),
+    ]);
+
+    $user = User::factory()->create(['customer_id' => Customer::create([
+        'name' => 'My Clinic',
+        'slug' => 'my-clinic',
+    ])->id]);
+    $user->assignRole('Hospital Admin');
+
+    expect($user->can('view', $worksheet))->toBeFalse();
+});
+
+it('allows a technician to view worksheets', function () {
+    $user = User::factory()->create();
+    $user->assignRole('Technician');
+
+    Livewire::actingAs($user)
+        ->test(ListWorksheets::class)
+        ->assertSuccessful();
+});
+
+it('saves an edit without re-uploading the workbook', function () {
+    $worksheet = Worksheet::factory()->create(['cert_number' => 'OLD']);
+
+    Livewire::actingAs(actingAdmin())
+        ->test(EditWorksheet::class, ['record' => $worksheet->getRouteKey()])
+        ->fillForm(['cert_number' => 'NEW'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($worksheet->fresh()->cert_number)->toBe('NEW');
 });

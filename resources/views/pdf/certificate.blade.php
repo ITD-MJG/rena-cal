@@ -42,6 +42,9 @@
     $payload = $worksheet->payload ?? [];
     $conclusion = data_get($payload, 'conclusion');
     $isLaik = $conclusion === \App\Models\Worksheet::CONCLUSION_LAIK;
+    // An unreadable verdict cell is not evidence of anything: show a placeholder
+    // rather than declaring the equipment unfit.
+    $verdict = $conclusion !== null ? strtoupper($conclusion) : '—';
 
     // Measurements arrive as raw floats (135.67030976400375). A certificate shows
     // three decimals with trailing zeros trimmed (135.67), never the float's
@@ -109,8 +112,8 @@
         </tr>
         <tr>
             <td style="border:none;">Kesimpulan</td>
-            <td style="border:none; font-weight:bold; {{ $isLaik ? 'color:#155724;' : 'color:#721c24;' }}">
-                {{ strtoupper($conclusion ?? 'TIDAK LAIK PAKAI') }}
+            <td style="border:none; font-weight:bold; {{ $conclusion === null ? '' : ($isLaik ? 'color:#155724;' : 'color:#721c24;') }}">
+                {{ $verdict }}
             </td>
         </tr>
     </table>
@@ -283,8 +286,8 @@
     {{-- 8. Kesimpulan --}}
     <div class="section-title">8. KESIMPULAN</div>
     <div class="center" style="margin: 8px 0;">
-        <span class="badge {{ $isLaik ? 'badge-laik' : 'badge-tidak' }}">
-            {{ strtoupper($conclusion ?? 'TIDAK LAIK PAKAI') }}
+        <span class="badge {{ $conclusion === null ? '' : ($isLaik ? 'badge-laik' : 'badge-tidak') }}">
+            {{ $verdict }}
         </span>
     </div>
 
