@@ -10,6 +10,6 @@ class Service extends Model
 
     public function worksheets()
     {
-        return $this->hasMany(CalibrationWorksheet::class);
+        return $this->hasMany(Worksheet::class);
     }
 }
