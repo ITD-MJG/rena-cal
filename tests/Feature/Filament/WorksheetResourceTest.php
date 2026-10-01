@@ -3,8 +3,10 @@
 use App\Filament\Dashboard\Resources\Worksheets\Pages\CreateWorksheet;
 use App\Filament\Dashboard\Resources\Worksheets\Pages\EditWorksheet;
 use App\Filament\Dashboard\Resources\Worksheets\Pages\ListWorksheets;
+use App\Filament\Dashboard\Resources\Worksheets\Schemas\WorksheetForm;
 use App\Models\Customer;
 use App\Models\Device;
+use App\Models\DeviceName;
 use App\Models\User;
 use App\Models\Worksheet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -165,4 +167,28 @@ it('shows every worksheet to staff roles', function () {
     Livewire::actingAs($user)
         ->test(ListWorksheets::class)
         ->assertCanSeeTableRecords(Worksheet::all());
+});
+
+it('shows the device name between the device code and serial number', function () {
+    $device = Device::factory()->create([
+        'device_number' => 'RENA-00001',
+        'serial_number' => 'A250705-510',
+        'device_name_id' => DeviceName::create(['name' => 'AUTOCLAVE', 'slug' => 'autoclave-label'])->id,
+    ]);
+
+    $label = WorksheetForm::deviceOptionLabel($device);
+
+    expect($label)->toBe('RENA-00001 — AUTOCLAVE — A250705-510');
+});
+
+it('omits a missing device name from the option label', function () {
+    $device = Device::factory()->create([
+        'device_number' => 'RENA-00002',
+        'serial_number' => 'SN-2',
+        'device_name_id' => null,
+    ]);
+
+    $label = WorksheetForm::deviceOptionLabel($device);
+
+    expect($label)->toBe('RENA-00002 — SN-2');
 });

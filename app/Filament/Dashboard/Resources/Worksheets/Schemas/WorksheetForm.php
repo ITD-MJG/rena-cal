@@ -2,6 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources\Worksheets\Schemas;
 
+use App\Models\Device;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -9,6 +10,19 @@ use Filament\Schemas\Schema;
 
 class WorksheetForm
 {
+    /**
+     * Device code, then device name, then serial number. A blank name is
+     * dropped rather than leaving a dangling separator.
+     */
+    public static function deviceOptionLabel(Device $device): string
+    {
+        return collect([
+            $device->device_number,
+            $device->deviceName?->name,
+            $device->serial_number,
+        ])->filter()->implode(' — ');
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -26,12 +40,12 @@ class WorksheetForm
                     ->required(fn (string $operation) => $operation === 'create'),
                 Select::make('device_id')
                     ->label('Device')
-                    ->relationship('device', 'device_number')
+                    // Third argument eager loads the name, so building each
+                    // option label does not fire a query per device.
+                    ->relationship('device', 'device_number', fn ($query) => $query->with('deviceName'))
                     ->searchable()
                     ->preload()
-                    ->getOptionLabelFromRecordUsing(
-                        fn ($record) => "{$record->device_number} — {$record->serial_number}"
-                    ),
+                    ->getOptionLabelFromRecordUsing(fn (Device $record) => self::deviceOptionLabel($record)),
                 TextInput::make('cert_number')
                     ->label('Nomor Sertifikat'),
                 TextInput::make('order_number')
