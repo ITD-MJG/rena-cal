@@ -1,0 +1,74 @@
+<?php
+
+use App\Filament\Dashboard\Resources\Worksheets\Pages\CreateWorksheet;
+use App\Filament\Dashboard\Resources\Worksheets\Pages\ListWorksheets;
+use App\Models\Device;
+use App\Models\User;
+use App\Models\Worksheet;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Livewire\Livewire;
+use Spatie\Permission\Models\Role;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    foreach (['Super Admin', 'Admin', 'Hospital Admin', 'Technician'] as $role) {
+        Role::firstOrCreate(['name' => $role]);
+    }
+});
+
+function actingAdmin(): User
+{
+    $user = User::factory()->create();
+    $user->assignRole('Super Admin');
+
+    return $user;
+}
+
+function fakeWorkbook(): UploadedFile
+{
+    return UploadedFile::fake()->createWithContent(
+        'Autoclave.xlsx',
+        file_get_contents(__DIR__.'/../../Fixtures/autoclave.xlsx')
+    );
+}
+
+it('lists worksheets', function () {
+    Livewire::actingAs(actingAdmin())
+        ->test(ListWorksheets::class)
+        ->assertSuccessful();
+});
+
+it('creates a worksheet from an uploaded workbook', function () {
+    Device::factory()->create(['serial_number' => 'A250705-510']);
+
+    Livewire::actingAs(actingAdmin())
+        ->test(CreateWorksheet::class)
+        ->fillForm([
+            'file' => fakeWorkbook(),
+            'cert_number' => 'RKS/26/3125',
+            'order_number' => '07260074',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $worksheet = Worksheet::firstOrFail();
+
+    expect($worksheet->payload)->toBeArray()
+        ->and($worksheet->device_serial)->toBe('A250705-510')
+        ->and($worksheet->cert_number)->toBe('RKS/26/3125')
+        ->and($worksheet->device)->not->toBeNull();
+});
+
+it('saves the record and warns when the workbook cannot be parsed', function () {
+    Livewire::actingAs(actingAdmin())
+        ->test(CreateWorksheet::class)
+        ->fillForm([
+            'file' => UploadedFile::fake()->createWithContent('bad.xlsx', 'not a workbook'),
+        ])
+        ->call('create');
+
+    expect(Worksheet::count())->toBe(1)
+        ->and(Worksheet::first()->payload)->toBeNull();
+});
