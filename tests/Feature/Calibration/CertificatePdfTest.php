@@ -166,3 +166,13 @@ it('reserves a blank top margin for the pre-printed letterhead', function () {
 
     expect($html)->toContain('padding: 45mm 20mm 10mm 20mm');
 });
+
+it('keeps the footer copyright clear of the paper edge', function () {
+    // Without bottom padding the copyright notice prints flush against the
+    // paper's bottom edge, where most printers cannot reach it.
+    $worksheet = worksheetFixture();
+
+    $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
+
+    expect($html)->toContain('padding-bottom: 10mm');
+});

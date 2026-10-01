@@ -37,7 +37,9 @@
 
         /* The footer is position:fixed, so dompdf repeats it on every page and the
            page number comes from the CSS page counter rather than a passed value. */
-        .pdf-footer { position: fixed; bottom: 0; left: 20mm; right: 20mm; }
+        /* The footer is pinned to the page box; padding-bottom keeps the
+           copyright notice off the paper's bottom edge. */
+        .pdf-footer { position: fixed; bottom: 0; left: 20mm; right: 20mm; padding-bottom: 10mm; }
         .pdf-footer-page { text-align: right; font-size: 9pt; color: #000; }
         .pdf-footer-counter::after { content: counter(page); }
         .pdf-footer-rule { border-top: 1px solid #000; margin: 2mm 0; }
