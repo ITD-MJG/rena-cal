@@ -200,7 +200,7 @@ id
 device_id                 nullable FK → devices, nullOnDelete
 source_workbook_path      string
 original_filename         string
-payload                   json
+payload                   json    nullable
 cert_number               string  nullable
 order_number              string  nullable
 status                    enum: draft | generated   default draft
