@@ -15,6 +15,20 @@ class WorksheetsTable
     public static function configure(Table $table): Table
     {
         return $table
+            // A Hospital Admin only ever sees their own customer's worksheets.
+            // viewAny is true for them, and Filament does not filter rows by the
+            // view() policy, so the query has to be scoped here.
+            ->modifyQueryUsing(function ($query) {
+                $user = auth()->user();
+
+                if ($user && $user->hasRole('Hospital Admin') && $user->customer_id) {
+                    return $query->whereHas('device', function ($q) use ($user) {
+                        $q->where('customer_id', $user->customer_id);
+                    });
+                }
+
+                return $query;
+            })
             ->columns([
                 TextColumn::make('device_serial')
                     ->label('Nomor Seri')

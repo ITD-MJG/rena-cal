@@ -132,3 +132,37 @@ it('stores the uploaded filename, not the temporary path', function () {
 
     expect(Worksheet::firstOrFail()->original_filename)->toBe('Autoclave.xlsx');
 });
+
+it('scopes the table to the hospital admin own customer', function () {
+    $mine = Customer::create(['name' => 'My Clinic', 'slug' => 'my-clinic-scope']);
+    $theirs = Customer::create(['name' => 'Other Clinic', 'slug' => 'other-clinic-scope']);
+
+    $myDevice = Device::factory()->create(['customer_id' => $mine->id]);
+    $theirDevice = Device::factory()->create(['customer_id' => $theirs->id]);
+
+    Worksheet::factory()->create(['device_id' => $myDevice->id, 'customer_name' => 'My Clinic']);
+    Worksheet::factory()->create(['device_id' => $theirDevice->id, 'customer_name' => 'Other Clinic']);
+
+    $user = User::factory()->create(['customer_id' => $mine->id]);
+    $user->assignRole('Hospital Admin');
+
+    Livewire::actingAs($user)
+        ->test(ListWorksheets::class)
+        ->assertCanSeeTableRecords(Worksheet::where('customer_name', 'My Clinic')->get())
+        ->assertCanNotSeeTableRecords(Worksheet::where('customer_name', 'Other Clinic')->get());
+});
+
+it('shows every worksheet to staff roles', function () {
+    $a = Customer::create(['name' => 'Clinic A', 'slug' => 'clinic-a-staff']);
+    $b = Customer::create(['name' => 'Clinic B', 'slug' => 'clinic-b-staff']);
+
+    Worksheet::factory()->create(['device_id' => Device::factory()->create(['customer_id' => $a->id]), 'customer_name' => 'Clinic A']);
+    Worksheet::factory()->create(['device_id' => Device::factory()->create(['customer_id' => $b->id]), 'customer_name' => 'Clinic B']);
+
+    $user = User::factory()->create();
+    $user->assignRole('Technician');
+
+    Livewire::actingAs($user)
+        ->test(ListWorksheets::class)
+        ->assertCanSeeTableRecords(Worksheet::all());
+});
