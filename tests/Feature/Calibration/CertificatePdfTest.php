@@ -208,6 +208,26 @@ it('places the QR block between the signer and the e-signature note', function (
         ->and($qr)->toBeLessThan($note);
 });
 
+it('embeds a font that carries the ohm sign', function () {
+    // Arial/Helvetica resolve to the WinAnsi core fonts in dompdf, which have
+    // no Ω: the electrical-safety unit printed as "?". DejaVu Sans is bundled
+    // with dompdf and covers the Greek block.
+    $worksheet = worksheetFixture()->load('device.customer');
+
+    $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
+
+    expect($html)->toContain("font-family: 'DejaVu Sans'");
+
+    $dompdf = Pdf::loadView('pdf.certificate', ['worksheet' => $worksheet])
+        ->setPaper('a4', 'portrait')
+        ->getDomPDF();
+    $dompdf->render();
+
+    // The in-memory font table is only populated once the PDF is written, so
+    // assert on the produced bytes: the font must be embedded by name.
+    expect($dompdf->output())->toContain('DejaVuSans');
+});
+
 it('leaves 1.5cm below the letterhead rule before the body', function () {
     // The header partial is not rendered into this certificate (the paper is
     // pre-printed), but its rule-to-body gap is the layout contract for the

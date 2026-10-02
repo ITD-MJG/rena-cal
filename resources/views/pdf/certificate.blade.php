@@ -5,7 +5,10 @@
     <title>Sertifikat Kalibrasi - {{ data_get($worksheet->payload, 'device.serial') ?? $worksheet->device_serial }}</title>
     <style>
         * { margin: 0; padding: 0; }
-        body { font-family: Arial, Helvetica, sans-serif; font-size: 9pt; color: #000; }
+        /* DejaVu Sans is bundled with dompdf and carries the Greek block, so the
+           ohm sign in the electrical-safety unit survives. Arial/Helvetica fall
+           back to the WinAnsi core fonts, which have no Ω and print a "?". */
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9pt; color: #000; }
         /* 45mm top = 35mm blank for the pre-printed letterhead + 10mm original margin.
            The paper already carries the RENA header, so nothing is drawn there. */
         .page { width: 170mm; padding: 45mm 20mm 10mm 20mm; page-break-after: always; }
@@ -85,7 +88,7 @@
         <tr>
             <td style="border:none; width:50%; vertical-align:top;">
                 <table>
-                    <tr><td style="border:none; width:45%;">Nomor Sertifikat</td><td style="border:none;">: {{ $worksheet->cert_number ?? '—' }}</td></tr>
+                    <tr><td style="border:none; width:48%;">Nomor Sertifikat</td><td style="border:none;">: {{ $worksheet->cert_number ?? '—' }}</td></tr>
                     <tr><td style="border:none;">Nomor Pesanan</td><td style="border:none;">: {{ $worksheet->order_number ?? '—' }}</td></tr>
                 </table>
             </td>
@@ -98,7 +101,7 @@
             <td style="border:none; width:50%; vertical-align:top;">
                 <div class="bold" style="margin-bottom:4px;">IDENTITAS ALAT</div>
                 <table>
-                    <tr><td style="border:none; width:45%;">Nama Alat</td><td style="border:none;">: {{ data_get($payload, 'device.name') ?? '—' }}</td></tr>
+                    <tr><td style="border:none; width:48%;">Nama Alat</td><td style="border:none;">: {{ data_get($payload, 'device.name') ?? '—' }}</td></tr>
                     <tr><td style="border:none;">Merk</td><td style="border:none;">: {{ data_get($payload, 'device.brand') ?? '—' }}</td></tr>
                     <tr><td style="border:none;">Tipe</td><td style="border:none;">: {{ data_get($payload, 'device.type') ?? '—' }}</td></tr>
                     <tr><td style="border:none;">Nomor Seri</td><td style="border:none;">: {{ data_get($payload, 'device.serial') ?? '—' }}</td></tr>
