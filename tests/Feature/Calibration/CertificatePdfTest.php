@@ -172,14 +172,14 @@ it('renders the page count in the fixed footer', function () {
 });
 
 it('reserves a blank top margin for the pre-printed letterhead', function () {
-    // The certificate paper is pre-printed with the RENA letterhead, so the
-    // top of every page must stay empty: 35mm of headroom plus the 10mm base
-    // margin. A regression to the old 10mm top would print content under it.
+    // The certificate paper is pre-printed with a 15mm RENA letterhead, so the
+    // top of every page must stay empty: 15mm of headroom plus the 10mm base
+    // margin. A regression to a bare 10mm top would print content under it.
     $worksheet = worksheetFixture();
 
     $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
 
-    expect($html)->toContain('padding: 45mm 20mm 10mm 20mm');
+    expect($html)->toContain('padding: 25mm 20mm 10mm 20mm');
 });
 
 it('keeps the fixed footer clear of the paper edge', function () {

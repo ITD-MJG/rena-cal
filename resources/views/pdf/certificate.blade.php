@@ -9,9 +9,9 @@
            ohm sign in the electrical-safety unit survives. Arial/Helvetica fall
            back to the WinAnsi core fonts, which have no Ω and print a "?". */
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 9pt; color: #000; }
-        /* 45mm top = 35mm blank for the pre-printed letterhead + 10mm original margin.
+        /* 25mm top = 15mm blank for the pre-printed letterhead + 10mm original margin.
            The paper already carries the RENA header, so nothing is drawn there. */
-        .page { width: 170mm; padding: 45mm 20mm 10mm 20mm; page-break-after: always; }
+        .page { width: 170mm; padding: 25mm 20mm 10mm 20mm; page-break-after: always; }
         .page:last-child { page-break-after: avoid; }
 
         table { border-collapse: collapse; width: 100%; }
