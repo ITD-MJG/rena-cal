@@ -38,13 +38,10 @@
 
         /* The footer is position:fixed, so dompdf repeats it on every page and the
            page number comes from the CSS page counter rather than a passed value. */
-        /* The footer is pinned to the page box; padding-bottom keeps the
-           copyright notice off the paper's bottom edge. */
         .pdf-footer { position: fixed; bottom: 0; left: 20mm; right: 20mm; padding-bottom: 10mm; }
         .pdf-footer-page { text-align: right; font-size: 9pt; color: #000; }
         .pdf-footer-counter::after { content: counter(page); }
         .pdf-footer-rule { border-top: 1px solid #000; margin: 2mm 0; }
-        .pdf-footer-note { text-align: center; font-size: 8pt; color: #000; }
         .page-1 { font-size: 12pt; }
     </style>
 </head>
@@ -128,19 +125,20 @@
         </tr>
     </table>
 
-    <table class="sig-table">
-        <tr>
-            <td style="width:60%;">
-                <div style="margin-bottom: 5px;">Jakarta, {{ now()->format('d F Y') }}</div>
-                <div class="bold">Penanggung Jawab</div>
-                <div class="small" style="margin-top: 30px;">Dokumen ini ditandatangani secara elektronik</div>
-            </td>
-            <td style="width:40%;" class="center">
-                <div class="small">QR</div>
+<table class="sig-table">
+    <tr>
+        <td style="width:60%;">
+            <div style="margin-bottom: 5px;">Jakarta, {{ now()->format('d F Y') }}</div>
+            <div class="bold">Penanggung Jawab</div>
+            <div class="center" style="margin: 14px 0;">
+                <div class="small" style="margin-bottom: 4px;">QR</div>
                 <div style="border:1px dashed #999; width:80px; height:80px; margin: 0 auto;"></div>
-            </td>
-        </tr>
-    </table>
+            </div>
+            <div class="small" style="margin-top: 14px;">Dokumen ini ditandatangani secara elektronik</div>
+        </td>
+        <td style="width:40%;"></td>
+    </tr>
+</table>
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════════ --}}

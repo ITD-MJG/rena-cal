@@ -1,4 +1,4 @@
-<table style="margin-bottom: 5px;">
+<table style="height: 1.5cm; margin-bottom: 5px;">
     <tr>
         <td style="border:none; width:80px; vertical-align:middle;">
             <div style="border: 2px solid #c00; padding: 4px; text-align:center; font-size: 16pt; font-weight:bold; color:#003366;">RENA</div>

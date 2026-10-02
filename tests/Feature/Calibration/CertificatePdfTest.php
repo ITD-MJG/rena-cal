@@ -140,7 +140,7 @@ it('omits the letterhead from every page', function () {
         ->not->toContain('admin@rena.co.id');
 });
 
-it('renders the page count and the copyright notice in the fixed footer', function () {
+it('renders the page count in the fixed footer', function () {
     $worksheet = worksheetFixture();
 
     $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
@@ -151,9 +151,7 @@ it('renders the page count and the copyright notice in the fixed footer', functi
         // The current page number comes from the CSS page counter, so the
         // footer is repeated on every page rather than hardcoded per page.
         ->toContain('counter(page)')
-        ->toContain('Dilarang memperbanyak dan atau mempublikasikan sebagian isi Sertifikat ini tanpa izin PT Rena Kalibrindo Selaras');
-
-    expect(substr_count($html, 'Dilarang memperbanyak'))->toBe(1);
+        ->not->toContain('Dilarang memperbanyak');
 });
 
 it('reserves a blank top margin for the pre-printed letterhead', function () {
@@ -167,14 +165,30 @@ it('reserves a blank top margin for the pre-printed letterhead', function () {
     expect($html)->toContain('padding: 45mm 20mm 10mm 20mm');
 });
 
-it('keeps the footer copyright clear of the paper edge', function () {
-    // Without bottom padding the copyright notice prints flush against the
-    // paper's bottom edge, where most printers cannot reach it.
+it('keeps the fixed footer clear of the paper edge', function () {
+    // Without bottom padding the footer prints flush against the paper's
+    // bottom edge, where most printers cannot reach it.
     $worksheet = worksheetFixture();
 
     $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
 
     expect($html)->toContain('padding-bottom: 10mm');
+});
+
+it('places the QR block between the signer and the e-signature note', function () {
+    $worksheet = worksheetFixture();
+
+    $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
+
+    $signer = strpos($html, 'Penanggung Jawab');
+    $qr = strpos($html, 'border:1px dashed #999');
+    $note = strpos($html, 'Dokumen ini ditandatangani secara elektronik');
+
+    expect($signer)->not->toBeFalse()
+        ->and($qr)->not->toBeFalse()
+        ->and($note)->not->toBeFalse()
+        ->and($signer)->toBeLessThan($qr)
+        ->and($qr)->toBeLessThan($note);
 });
 
 it('separates each numbered part group from the table above it', function () {
