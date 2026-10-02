@@ -108,6 +108,23 @@ it('carries the workbook values into the certificate', function () {
         ->toContain('Jl. Radio Dalam Raya');
 });
 
+it('lists the certificate and order numbers with the identitas alat alignment', function () {
+    // The cover pairs each label with a colon-prefixed value, the same shape
+    // the IDENTITAS ALAT block uses, so the two blocks line up.
+    $worksheet = worksheetFixture()->load('device.customer');
+
+    $html = view('pdf.certificate', ['worksheet' => $worksheet])->render();
+
+    expect($html)
+        ->toContain('Nomor Sertifikat</td><td style="border:none;">: RKS/26/3125')
+        ->toContain('Nomor Pesanan</td><td style="border:none;">: 07260074')
+        ->and(strpos($html, 'Nomor Sertifikat'))->toBeLessThan(strpos($html, 'Nomor Pesanan'));
+
+    // The certificate number appears exactly once: in the cover's
+    // Nomor Sertifikat row, not repeated under the title.
+    expect(substr_count($html, 'RKS/26/3125'))->toBe(1);
+});
+
 it('renders without error when the payload is null', function () {
     $worksheet = Worksheet::factory()->create(['payload' => null]);
 
@@ -189,6 +206,17 @@ it('places the QR block between the signer and the e-signature note', function (
         ->and($note)->not->toBeFalse()
         ->and($signer)->toBeLessThan($qr)
         ->and($qr)->toBeLessThan($note);
+});
+
+it('leaves 1.5cm below the letterhead rule before the body', function () {
+    // The header partial is not rendered into this certificate (the paper is
+    // pre-printed), but its rule-to-body gap is the layout contract for the
+    // letterhead. 8px ran the first table into the rule.
+    $html = view('pdf.partials.header')->render();
+
+    expect($html)
+        ->toContain('margin-bottom: 1.5cm')
+        ->not->toContain('height: 1.5cm');
 });
 
 it('separates each numbered part group from the table above it', function () {

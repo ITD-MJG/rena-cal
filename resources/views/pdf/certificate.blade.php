@@ -79,13 +79,17 @@
 <div class="page page-1">
     <div class="center" style="margin: 10px 0;">
         <div style="font-size: 13pt; font-weight: bold; text-decoration: underline;">SERTIFIKAT KALIBRASI</div>
-        <div style="font-size: 9pt;">Nomor : {{ $worksheet->cert_number ?? '—' }}</div>
     </div>
 
     <table style="margin-bottom: 10px;">
         <tr>
-            <td style="border:none; width:50%;">Nomor Pesanan</td>
-            <td style="border:none; font-weight:bold;">{{ $worksheet->order_number ?? '—' }}</td>
+            <td style="border:none; width:50%; vertical-align:top;">
+                <table>
+                    <tr><td style="border:none; width:45%;">Nomor Sertifikat</td><td style="border:none;">: {{ $worksheet->cert_number ?? '—' }}</td></tr>
+                    <tr><td style="border:none;">Nomor Pesanan</td><td style="border:none;">: {{ $worksheet->order_number ?? '—' }}</td></tr>
+                </table>
+            </td>
+            <td style="border:none; width:50%;"></td>
         </tr>
     </table>
 
